@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Utensils, ChevronRight, Check, Copy, Shield, Snowflake, X } from "lucide-react";
+import { Utensils, ChevronRight, Check, Copy, Shield, Snowflake, X, Eye, EyeOff } from "lucide-react";
 import { useLedger } from "./provider";
 import { money, sum, MONTH } from "@/lib/format";
 import type { Period } from "@/lib/types";
@@ -26,6 +26,7 @@ export function SpendingCard({
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isFrozen, setIsFrozen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
 
   const currency = data.settings.currency;
   const locale = data.settings.locale;
@@ -113,8 +114,24 @@ export function SpendingCard({
 
                 <div className="card-amount-line">
                   <span className="card-amount-value hero-amount">
-                    {money(spent, currency, locale)}
+                    {isHidden ? "••••••" : money(spent, currency, locale)}
                   </span>
+                  <button
+                    type="button"
+                    className="card-hide-toggle-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsHidden(!isHidden);
+                    }}
+                    title={isHidden ? "Show spent amount" : "Hide spent amount"}
+                    aria-label={isHidden ? "Show spent amount" : "Hide spent amount"}
+                  >
+                    {isHidden ? (
+                      <EyeOff size={15} strokeWidth={1.8} />
+                    ) : (
+                      <Eye size={15} strokeWidth={1.8} />
+                    )}
+                  </button>
                 </div>
 
                 {/* Trend Badge */}
@@ -138,7 +155,7 @@ export function SpendingCard({
                     </svg>
                   </span>
                   <span className="trend-pill-amount">
-                    {money(diff, currency, locale)}
+                    {isHidden ? "••••" : money(diff, currency, locale)}
                   </span>
                   <span className="trend-pill-sub">
                     {isLess ? "less" : "more"} than yesterday

@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -17,6 +18,8 @@ import {
   Ellipsis,
   ChevronDown,
   ArrowUpRight,
+  Menu,
+  X,
 } from "lucide-react";
 import { useLedger } from "./provider";
 const navigation = [
@@ -38,19 +41,38 @@ const navigation = [
   { label: "Calendar", href: "/calendar", icon: CalendarDays },
   { label: "Categories", href: "/categories", icon: Shapes, group: "MANAGE" },
 ];
-export function DesktopSidebar() {
+export function DesktopSidebar({
+  isOpen = false,
+  onClose,
+}: {
+  isOpen?: boolean;
+  onClose?: () => void;
+}) {
   const pathname = usePathname();
   const { data } = useLedger();
   return (
-    <aside className="sidebar">
-      <Link href="/" className="brand">
-        <span className="brand-mark">
-          <i />
-          <i />
-          <i />
-        </span>
-        finora<span className="brand-dot">.</span>
-      </Link>
+    <aside
+      className={`sidebar ${isOpen ? "sidebar-mobile-open" : ""}`}
+      aria-label="Main navigation sidebar"
+    >
+      <div className="sidebar-brand-row">
+        <Link href="/" className="brand" onClick={onClose}>
+          <span className="brand-mark">
+            <i />
+            <i />
+            <i />
+          </span>
+          finora<span className="brand-dot">.</span>
+        </Link>
+        <button
+          type="button"
+          className="mobile-sidebar-close icon-button"
+          onClick={onClose}
+          aria-label="Close navigation sidebar"
+        >
+          <X size={18} />
+        </button>
+      </div>
       <div className="workspace">
         <span className="avatar">{data.settings.name.charAt(0) || "R"}</span>
         <span>
@@ -58,7 +80,7 @@ export function DesktopSidebar() {
         </span>
         <ChevronDown size={14} />
       </div>
-      <nav aria-label="Main navigation">
+      <nav aria-label="Main navigation" className="sidebar-nav">
         {navigation.map((n) => (
           <div key={n.href}>
             {n.group && <div className="nav-label">{n.group}</div>}
@@ -66,6 +88,7 @@ export function DesktopSidebar() {
               href={n.href}
               className={`nav-link ${pathname === n.href ? "selected" : ""}`}
               aria-current={pathname === n.href ? "page" : undefined}
+              onClick={onClose}
             >
               <n.icon size={18} strokeWidth={1.65} />
               <span>{n.label}</span>
@@ -85,9 +108,10 @@ export function DesktopSidebar() {
         <Link
           className={`nav-link ${pathname === "/settings" ? "selected" : ""}`}
           href="/settings"
+          onClick={onClose}
         >
           <Settings size={18} />
-          Settings
+          <span>Settings</span>
         </Link>
         <div className="sidebar-footer">
           A space for your everyday.
@@ -163,27 +187,62 @@ export function MobileBottomNav() {
 }
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { openSearch, data } = useLedger();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
   return (
     <>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <DesktopSidebar />
+
+      {/* Backdrop for Mobile Sidebar Drawer */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-mobile-backdrop"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <DesktopSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+
       <div className="app-content">
         <header className="topbar">
-          <span className="topbar-label">Personal finance, thoughtfully.</span>
-          <Link href="/" className="mobile-brand">
-            finora.
-          </Link>
+          <div className="topbar-left-group">
+            <button
+              type="button"
+              className="mobile-sidebar-toggle icon-button"
+              onClick={() => setSidebarOpen((prev) => !prev)}
+              aria-label={sidebarOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={sidebarOpen}
+            >
+              <Menu size={20} />
+            </button>
+            <span className="topbar-label">Personal finance, thoughtfully.</span>
+            <Link href="/" className="mobile-brand">
+              finora.
+            </Link>
+          </div>
+
           <div className="topbar-actions">
             <button
               className="search-trigger"
               onClick={openSearch}
               aria-label="Search Finora"
             >
-              <Search size={17} />
-              <span>Search anything</span>
-              <kbd>Ctrl K</kbd>
+              <Search size={14} className="search-trigger-icon" />
+              <span className="search-trigger-text">Search anything…</span>
+              <kbd className="search-trigger-kbd">
+                <span className="kbd-cmd">⌘</span>K
+              </kbd>
             </button>
             <div className="topbar-divider" />
             <ThemeToggle />

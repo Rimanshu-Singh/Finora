@@ -9,6 +9,7 @@ import {
   Copy,
   Pencil,
   Trash2,
+  X,
 } from "lucide-react";
 import { useLedger } from "./provider";
 import {
@@ -276,13 +277,23 @@ export function TransactionsPage() {
       />
       <div className="filter-toolbar">
         <div className="search-field">
-          <Search size={17} />
+          <Search size={16} className="search-field-icon" />
           <input
             aria-label="Search transactions"
             placeholder="Search transactions…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          {query && (
+            <button
+              type="button"
+              className="search-clear-btn"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
         <button
           className="button"

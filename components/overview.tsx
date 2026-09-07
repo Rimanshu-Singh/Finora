@@ -15,8 +15,9 @@ import {
   EmptyState,
 } from "./ui";
 import { TransactionList } from "./transactions";
-import { AnalyticsChart, CategoryBreakdown } from "./charts";
+import { CategoryBreakdown } from "./charts";
 import { SpendingCard } from "./spending-card";
+import { SpendingRhythmChart } from "./dashboard/spending-rhythm-chart";
 import { sum, inPeriod, MONTH, TODAY } from "@/lib/format";
 import type { Period } from "@/lib/types";
 export function Overview() {
@@ -80,18 +81,7 @@ export function Overview() {
           </Link>
         </div>
       </section>
-      <section className="trend-section">
-        <div className="section-heading">
-          <div>
-            <h2>Spending rhythm</h2>
-            <p>Your week, one day at a time.</p>
-          </div>
-          <Link href="/analytics" className="text-button">
-            View insights <ArrowUpRight size={15} />
-          </Link>
-        </div>
-        <AnalyticsChart expenses={data.expenses} />
-      </section>
+      <SpendingRhythmChart expenses={data.expenses} />
       <div className="overview-lower">
         <section className="recent-section">
           <div className="section-heading">
