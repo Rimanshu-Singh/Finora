@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { useLiveISTTime } from "@/hooks/use-live-ist-time";
 
 export interface DashboardGreetingProps {
@@ -8,17 +8,27 @@ export interface DashboardGreetingProps {
   subtitle?: string;
 }
 
+const emptySubscribe = () => () => {};
+
+function useIsMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+}
+
 export function DashboardGreeting({
   userName,
   subtitle = "A clear view of your everyday.",
 }: DashboardGreetingProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
   const { formattedDate, formattedTime, greeting, timezoneLabel } =
     useLiveISTTime();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const formattedName = userName
+    ? userName.charAt(0).toUpperCase() + userName.slice(1)
+    : "";
 
   return (
     <div>
@@ -34,7 +44,7 @@ export function DashboardGreeting({
         )}
       </div>
       <h1>
-        {mounted ? greeting : "Good morning"}, {userName}
+        {mounted ? greeting : "Good Morning"}, {formattedName}
         <span className="greeting-dot">.</span>
       </h1>
       <p>{subtitle}</p>

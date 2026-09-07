@@ -261,16 +261,17 @@ test("dashboard displays dynamic greeting and live IST clock", async ({
     /[A-Z]+,\s+\d{1,2}\s+[A-Z]+\s+\d{4}\s+·\s+IST\s+·\s+\d{2}:\d{2}:\d{2}/,
   );
 
-  // Matches greeting according to period
+  // Matches greeting according to period - verifying every first letter after Good is capital
   const headerHeading = page.locator(".overview-header h1");
   await expect(headerHeading).toHaveText(
-    /Good (morning|afternoon|evening|night),\s+Rimanshu\./,
+    /Good (Morning|Afternoon|Evening|Night),\s+Rimanshu\./,
   );
+  const headingText = (await headerHeading.textContent()) ?? "";
+  expect(headingText).toMatch(/^Good (Morning|Afternoon|Evening|Night)/);
 
   // Subtitle remains
-  await expect(page.locator(".overview-header p")).toHaveText(
-    "A clear view of your everyday.",
-  );
+  const subtitle = page.locator(".overview-header p");
+  await expect(subtitle).toHaveText("A clear view of your everyday.");
 
   // Verify clock updates live
   const initialText = await dateLine.innerText();
