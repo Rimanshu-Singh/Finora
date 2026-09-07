@@ -3,7 +3,6 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowDownRight,
   ChevronRight,
   CalendarDays,
   ArrowUpRight,
@@ -11,13 +10,13 @@ import {
 import { useLedger } from "./provider";
 import {
   AddButton,
-  PeriodSelector,
   MoneyAmount,
   BudgetProgress,
   EmptyState,
 } from "./ui";
 import { TransactionList } from "./transactions";
 import { AnalyticsChart, CategoryBreakdown } from "./charts";
+import { SpendingCard } from "./spending-card";
 import { sum, inPeriod, MONTH, TODAY } from "@/lib/format";
 import type { Period } from "@/lib/types";
 export function Overview() {
@@ -46,32 +45,13 @@ export function Overview() {
         <AddButton />
       </header>
       <section className="spending-overview">
-        <div className="spending-hero">
-          <PeriodSelector value={period} onChange={setPeriod} />
-          <div className="hero-label">
-            {period === "Today"
-              ? "TODAY’S SPENDING"
-              : `THIS ${period.toUpperCase()}’S SPENDING`}
-          </div>
-          <MoneyAmount amount={spent} className="hero-amount" />
-          <div className="hero-comparison">
-            <span className="trend-badge">
-              <ArrowDownRight size={14} />
-            </span>
-            {period === "Today" ? (
-              <>
-                <MoneyAmount amount={Math.abs(yesterday - today)} />{" "}
-                {today <= yesterday ? "less" : "more"} than yesterday
-              </>
-            ) : (
-              <>
-                {data.expenses.filter((e) => inPeriod(e, period)).length}{" "}
-                expenses this {period.toLowerCase()}
-              </>
-            )}
-          </div>
-          <div className="hero-footnote">Small moments. A clearer picture.</div>
-        </div>
+        <SpendingCard
+          spent={spent}
+          period={period}
+          onPeriodChange={setPeriod}
+          yesterdaySpent={yesterday}
+          todaySpent={today}
+        />
         <div className="month-summary">
           <div className="section-top">
             <span className="eyebrow">SEPTEMBER AT A GLANCE</span>

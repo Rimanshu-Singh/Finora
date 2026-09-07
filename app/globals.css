@@ -470,6 +470,702 @@ main {
   position: relative;
   padding-right: 35px;
 }
+
+/* ==========================================================================
+/* ==========================================================================
+   Sleek Spending Card (Neo-Fintech Luxury Card matching Exact Mockup)
+   ========================================================================== */
+.sleek-spending-card-container {
+  position: relative;
+  padding-right: 35px;
+  width: 100%;
+}
+
+.sleek-spending-card {
+  position: relative;
+  width: 100%;
+  min-height: 290px;
+  border-radius: 28px;
+  background: #0d0f14;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 
+    0 30px 60px -15px rgba(0, 0, 0, 0.75),
+    0 0 50px -10px rgba(230, 110, 25, 0.18);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.sleek-spending-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 35px 70px -15px rgba(0, 0, 0, 0.85),
+    0 0 65px -8px rgba(230, 110, 25, 0.25);
+}
+
+/* Warm Horizon Bloom at Bottom Right */
+.card-ambient-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 75% 65% at 75% 108%,
+    rgba(245, 140, 40, 0.5) 0%,
+    rgba(195, 80, 20, 0.28) 35%,
+    rgba(13, 15, 20, 0.95) 75%
+  );
+  z-index: 1;
+}
+
+/* Subtle top sheen */
+.card-glass-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Concentric Vector Arcs SVG Overlay */
+.card-concentric-svg {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-inner {
+  position: relative;
+  z-index: 2;
+  padding: 32px 34px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 290px;
+}
+
+/* Top Section: Spent Block on Left, Chip on Right */
+.card-top-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.card-spent-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.card-eyebrow-btn {
+  background: transparent !important;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 2px;
+  text-align: left;
+}
+
+.card-eyebrow-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+}
+
+.card-amount-line {
+  margin: 3px 0 8px;
+}
+
+.card-amount-value,
+.card-amount-value.hero-amount {
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  color: #ffffff !important;
+  font-variant-numeric: tabular-nums;
+  display: block;
+}
+
+/* Trend Pill */
+.card-trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.24);
+  backdrop-filter: blur(8px);
+}
+
+.trend-pill-icon {
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trend-pill-amount {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-right: 2px;
+}
+
+.trend-pill-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Top-Right Gold Chip & Contactless */
+.card-chip-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.gold-emv-chip {
+  width: 44px;
+  height: 33px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #dfb350 0%, #b38525 45%, #d4a53a 75%, #fae08f 100%);
+  border: 1px solid rgba(175, 125, 25, 0.7);
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.chip-inner-pattern {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  border-radius: 3px;
+}
+
+.chip-inner-pattern::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.25);
+  transform: translateY(-50%);
+}
+
+.contactless-waves-icon {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Middle Section: Budget Tracker on Left, Food Pill on Right */
+.card-middle-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.card-budget-tracker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.budget-pie-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.budget-progress-column {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.budget-label-row {
+  display: flex;
+  align-items: center;
+}
+
+.budget-label-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.budget-label-text strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.budget-track-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.budget-track-bar {
+  width: 180px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.budget-track-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.budget-left-text {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+}
+
+/* Category Pill on Right */
+.card-category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  border-radius: 999px;
+  padding: 9px 18px;
+  color: #ffffff !important;
+  text-decoration: none;
+  transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+
+.card-category-pill:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.cat-pill-icon {
+  color: #f59e0b;
+}
+
+.cat-pill-text {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.cat-pill-chevron {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Bottom Section: Masked Number on Left, Mastercard on Right */
+.card-bottom-section {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.card-number-dots-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #ffffff;
+  user-select: none;
+}
+
+.dots-cluster {
+  font-size: 17px;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.digits-visible {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+/* Mastercard Emblem */
+.mastercard-emblem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.mc-circles-wrapper {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+}
+
+.mc-circles-wrapper .mc-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.mc-circles-wrapper .mc-red {
+  background: #eb001b;
+  left: 0;
+  z-index: 1;
+}
+
+.mc-circles-wrapper .mc-amber {
+  background: #f79e1b;
+  right: 0;
+  z-index: 2;
+  mix-blend-mode: screen;
+}
+
+.mc-wordmark {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-transform: lowercase;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* ==========================================================================
+   Card Management Modal & Payees Sheet
+   ========================================================================== */
+.card-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.card-modal-sheet {
+  background: #141418;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+  color: #ffffff;
+  animation: sheetPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes sheetPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-title-group h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.modal-badge {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 3px;
+  display: inline-block;
+}
+
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: none;
+  color: rgba(255, 255, 255, 0.7) !important;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+}
+
+/* Virtual Card Preview */
+.virtual-card-preview {
+  position: relative;
+  background: linear-gradient(135deg, #22222a 0%, #121216 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.virtual-card-preview.frozen {
+  filter: grayscale(0.5);
+}
+
+.vc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.vc-chip {
+  width: 32px;
+  height: 24px;
+  background: linear-gradient(135deg, #d4af37 0%, #aa8420 100%);
+  border-radius: 4px;
+  display: block;
+}
+
+.vc-brand {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.vc-number {
+  font-family: monospace;
+  font-size: 16px;
+  letter-spacing: 2.5px;
+  color: #ffffff;
+  margin-bottom: 18px;
+}
+
+.vc-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.vc-label {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 2px;
+}
+
+.vc-val {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.frozen-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 18, 30, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Card Limit Box */
+.card-limit-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.limit-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 8px;
+}
+
+.limit-numbers {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.limit-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.limit-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f79e1b, #eb001b);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Card Actions Grid */
+.card-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.card-action-tile {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 8px;
+  color: #ffffff !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.card-action-tile:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  transform: translateY(-2px);
+}
+
+.card-action-tile.active-frozen {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #93c5fd !important;
+}
+
+/* Payees Sheet */
+.payees-sheet {
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.payees-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  max-height: 380px;
+  padding-right: 4px;
+}
+
+.payee-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.payee-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(3px);
+}
+
+.payee-avatar-wrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #25252b;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payee-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.payee-fallback-bubble {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.payee-info {
+  flex: 1;
+}
+
+.payee-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.payee-sub {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.payee-plus-icon {
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.15s ease;
+}
+
+.payee-row:hover .payee-plus-icon {
+  color: #ffffff;
+}
+
 .periods {
   display: inline-flex;
   gap: 2px;
@@ -2028,8 +2724,156 @@ main {
     grid-template-columns: 1fr;
     padding-bottom: 24px;
   }
-  .spending-hero {
-    padding: 0;
+  .spending-hero,
+  .sleek-spending-card-container {
+    padding-right: 0;
+    margin-bottom: 16px;
+    width: 100%;
+  }
+  .sleek-spending-card {
+    min-height: 205px;
+    border-radius: 20px;
+    box-shadow: 
+      0 16px 36px -10px rgba(0, 0, 0, 0.7),
+      0 0 30px -8px rgba(230, 110, 25, 0.16);
+  }
+  .card-inner {
+    min-height: 205px;
+    padding: 18px 16px 14px;
+  }
+  .card-eyebrow-label {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+  .card-amount-value,
+  .card-amount-value.hero-amount {
+    font-size: 34px;
+    letter-spacing: -1px;
+    margin: 2px 0 6px;
+  }
+  .card-trend-pill {
+    padding: 4px 9px;
+    gap: 4px;
+  }
+  .trend-pill-amount {
+    font-size: 11.5px;
+  }
+  .trend-pill-sub {
+    font-size: 10.5px;
+  }
+  .card-chip-group {
+    gap: 7px;
+    padding-top: 2px;
+  }
+  .gold-emv-chip {
+    width: 33px;
+    height: 25px;
+    border-radius: 4px;
+  }
+  .contactless-waves-icon {
+    width: 15px;
+    height: 15px;
+  }
+  .card-middle-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 12px;
+    gap: 8px;
+  }
+  .card-budget-tracker {
+    gap: 8px;
+  }
+  .budget-pie-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .budget-pie-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+  .budget-progress-column {
+    gap: 3px;
+  }
+  .budget-label-text {
+    font-size: 10.5px;
+  }
+  .budget-track-row {
+    gap: 6px;
+  }
+  .budget-track-bar {
+    width: 72px;
+    height: 4px;
+  }
+  .budget-left-text {
+    font-size: 9.5px;
+  }
+  .card-category-pill {
+    padding: 5px 10px;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .cat-pill-icon {
+    width: 11px;
+    height: 11px;
+  }
+  .cat-pill-text {
+    font-size: 11px;
+  }
+  .cat-pill-chevron {
+    width: 10px;
+    height: 10px;
+  }
+  .card-bottom-section {
+    margin-top: 14px;
+  }
+  .card-number-dots-group {
+    gap: 8px;
+  }
+  .dots-cluster {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+  .digits-visible {
+    font-size: 13.5px;
+    letter-spacing: 1.5px;
+  }
+  .mc-circles-wrapper {
+    width: 32px;
+    height: 19px;
+  }
+  .mc-circles-wrapper .mc-circle {
+    width: 19px;
+    height: 19px;
+  }
+  .mc-wordmark {
+    font-size: 8px;
+    letter-spacing: 0.4px;
+    margin-top: 1px;
+  }
+  @media (max-width: 375px) {
+    .sleek-spending-card {
+      min-height: 195px;
+    }
+    .card-inner {
+      min-height: 195px;
+      padding: 16px 14px 12px;
+    }
+    .card-amount-value,
+    .card-amount-value.hero-amount {
+      font-size: 30px;
+    }
+    .trend-pill-sub {
+      display: none;
+    }
+    .budget-track-bar {
+      width: 50px;
+    }
+    .card-category-pill {
+      padding: 4px 8px;
+    }
   }
   .periods button {
     min-height: 33px;
