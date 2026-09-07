@@ -22,6 +22,7 @@ import {
   ConfirmDialog,
 } from "./ui";
 import { dateLabel, sum, inPeriod } from "@/lib/format";
+import { deleteExpenseAction } from "@/lib/db/mutations/expenses";
 import type { Expense, Period } from "@/lib/types";
 import { paymentMethods } from "./expense-form";
 export function TransactionRow({
@@ -193,15 +194,22 @@ export function TransactionDetail({
           title="Delete this expense?"
           description="This expense will be removed from your spending totals for this session."
           onClose={() => setConfirm(false)}
-          onConfirm={() => {
+          onConfirm={async () => {
+            const expenseId = expense.id;
             setData((d) => ({
               ...d,
-              expenses: d.expenses.filter((e) => e.id !== expense.id),
+              expenses: d.expenses.filter((e) => e.id !== expenseId),
             }));
             setConfirm(false);
             notify("Expense deleted");
             if (onClose) onClose();
             else router.push("/transactions");
+
+            try {
+              await deleteExpenseAction(expenseId);
+            } catch (err) {
+              console.error("Failed to delete expense:", err);
+            }
           }}
         />
       )}

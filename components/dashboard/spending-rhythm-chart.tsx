@@ -70,8 +70,8 @@ export function calculateAverage(values: number[]): number {
 export function calculateWeekChange(currentTotal: number, prevTotal: number) {
   if (prevTotal === 0) {
     return {
-      pct: "12.4",
-      isHigher: false,
+      pct: currentTotal > 0 ? "100.0" : "0.0",
+      isHigher: currentTotal > 0,
     };
   }
   const diff = currentTotal - prevTotal;

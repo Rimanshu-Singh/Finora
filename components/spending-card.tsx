@@ -35,13 +35,14 @@ export function SpendingCard({
   const monthlyExpenses = data.expenses.filter((e) => e.date.startsWith(MONTH));
   const monthlyTotal = sum(monthlyExpenses);
   const budgetLimit = data.budgets.find((b) => !b.categoryId)?.limit ?? 30000;
-  const budgetUsedPct = Math.min(100, Math.round((monthlyTotal / budgetLimit) * 100)) || 64;
+  const budgetUsedPct =
+    budgetLimit > 0 ? Math.min(100, Math.round((monthlyTotal / budgetLimit) * 100)) : 0;
   const budgetLeftPct = Math.max(0, 100 - budgetUsedPct);
 
   // Top category calculation (Food)
   const foodExpenses = monthlyExpenses.filter((e) => e.categoryId === "food");
   const foodTotal = sum(foodExpenses);
-  const foodPct = monthlyTotal > 0 ? Math.round((foodTotal / monthlyTotal) * 100) : 32;
+  const foodPct = monthlyTotal > 0 ? Math.round((foodTotal / monthlyTotal) * 100) : 0;
 
   // Comparison with yesterday
   const diff = Math.abs(yesterdaySpent - todaySpent);

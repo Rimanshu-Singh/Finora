@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -22,6 +22,8 @@ import {
   X,
 } from "lucide-react";
 import { useLedger } from "./provider";
+import { useUser } from "@clerk/nextjs";
+import { UserMenu } from "./auth/user-menu";
 const navigation = [
   { label: "Overview", href: "/", icon: House, group: "" },
   {
@@ -50,6 +52,16 @@ export function DesktopSidebar({
 }) {
   const pathname = usePathname();
   const { data } = useLedger();
+  const { user } = useUser();
+  const avatarLetter = (
+    user?.firstName?.charAt(0) ||
+    data.settings.name.charAt(0) ||
+    "R"
+  ).toUpperCase();
+  const spaceLabel = user?.firstName
+    ? `${user.firstName}'s space`
+    : "Personal space";
+
   return (
     <aside
       className={`sidebar ${isOpen ? "sidebar-mobile-open" : ""}`}
@@ -74,9 +86,21 @@ export function DesktopSidebar({
         </button>
       </div>
       <div className="workspace">
-        <span className="avatar">{data.settings.name.charAt(0) || "R"}</span>
+        <span className="avatar">
+          {user?.imageUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={user.imageUrl}
+              alt=""
+              className="w-full h-full rounded-full object-cover"
+            />
+          ) : (
+            avatarLetter
+          )}
+        </span>
         <span>
-          Personal space<small>Make room for clarity.</small>
+          {spaceLabel}
+          <small>Make room for clarity.</small>
         </span>
         <ChevronDown size={14} />
       </div>
@@ -186,13 +210,20 @@ export function MobileBottomNav() {
   );
 }
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { openSearch, data } = useLedger();
+  const { openSearch } = useLedger();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-  useEffect(() => {
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setSidebarOpen(false);
-  }, [pathname]);
+  }
+
+  // Auth pages (sign-in, sign-up) render centered without the application dashboard shell
+  if (pathname?.startsWith("/sign-in") || pathname?.startsWith("/sign-up")) {
+    return <main id="main">{children}</main>;
+  }
 
   return (
     <>
@@ -246,13 +277,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
             <div className="topbar-divider" />
             <ThemeToggle />
-            <Link
-              href="/settings"
-              className="avatar"
-              aria-label="Profile settings"
-            >
-              {data.settings.name.charAt(0) || "R"}
-            </Link>
+            <UserMenu />
           </div>
         </header>
         <main id="main" tabIndex={-1}>

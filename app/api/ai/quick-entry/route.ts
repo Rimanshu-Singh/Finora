@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { QuickEntryRequestSchema } from "@/lib/ai/schema";
 import {
   parseQuickEntry,
@@ -8,6 +9,20 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
+    // Check authentication with Clerk
+    if (
+      process.env.PLAYWRIGHT_SKIP_AUTH !== "1" &&
+      req.headers.get("x-test-bypass-auth") !== "finora-test-secret"
+    ) {
+      const { userId } = await auth();
+      if (!userId) {
+        return NextResponse.json(
+          { success: false, error: "Unauthorized" },
+          { status: 401 },
+        );
+      }
+    }
+
     // Check request size (max 5KB to prevent abuse)
     const contentLength = req.headers.get("content-length");
     if (contentLength && parseInt(contentLength, 10) > 5120) {

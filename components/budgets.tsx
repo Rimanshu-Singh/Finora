@@ -10,6 +10,7 @@ import {
   Modal,
 } from "./ui";
 import { sum, MONTH } from "@/lib/format";
+import { saveBudgetAction } from "@/lib/db/mutations/budgets";
 import type { Budget } from "@/lib/types";
 export function BudgetEditor({
   budget,
@@ -28,16 +29,17 @@ export function BudgetEditor({
     >
       <form
         className="standard-form"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           const f = new FormData(e.currentTarget);
           const cat = String(f.get("category") || "");
-          const period = String(f.get("period"));
+          const period = String(f.get("period") || MONTH);
           const existing = data.budgets.find(
             (b) => b.categoryId === (cat || undefined) && b.period === period,
           );
+          const tempId = budget?.id ?? existing?.id ?? `budget-${crypto.randomUUID()}`;
           const item: Budget = {
-            id: budget?.id ?? existing?.id ?? crypto.randomUUID(),
+            id: tempId,
             categoryId: cat || undefined,
             limit: Number(f.get("limit")),
             spent: 0,
@@ -50,6 +52,23 @@ export function BudgetEditor({
           }));
           notify("Budget saved");
           onClose();
+
+          try {
+            const res = await saveBudgetAction({
+              categoryId: item.categoryId,
+              limit: item.limit,
+              period: item.period,
+              carry: item.carry,
+            });
+            if (res.data) {
+              setData((d) => ({
+                ...d,
+                budgets: [...d.budgets.filter((b) => b.id !== tempId && b.id !== res.data!.id), res.data!],
+              }));
+            }
+          } catch (err) {
+            console.error("Failed to persist budget:", err);
+          }
         }}
       >
         <label>

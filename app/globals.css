@@ -4172,3 +4172,196 @@ main {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==================================================
+   FINORA AUTHENTICATION & CLERK THEME INTEGRATION
+================================================== */
+
+.auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg);
+  padding: 32px 16px;
+  position: relative;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.auth-brand-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.auth-brand-header .brand {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.auth-tagline {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: -0.1px;
+}
+
+.user-menu-root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-skeleton {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: inline-block;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Clerk UI Component Overrides to Match Finora Aesthetic */
+.cl-rootBox {
+  font-family: inherit !important;
+  color: var(--text) !important;
+}
+
+.cl-card {
+  background: var(--bg) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.cl-headerTitle {
+  color: var(--text) !important;
+  font-family: inherit !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.3px !important;
+}
+
+.cl-headerSubtitle {
+  color: var(--muted) !important;
+  font-size: 13px !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  color: var(--text) !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  transition: background 0.15s ease, border-color 0.15s ease !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background: var(--hover) !important;
+  border-color: var(--strong) !important;
+}
+
+.cl-dividerLine {
+  background: var(--border) !important;
+}
+
+.cl-dividerText {
+  color: var(--faint) !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.cl-formFieldLabel {
+  color: var(--muted) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+.cl-formFieldInput {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  color: var(--text) !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: var(--text) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.cl-formButtonPrimary {
+  background: var(--button) !important;
+  color: var(--button-text) !important;
+  border-radius: var(--radius) !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  transition: opacity 0.15s ease !important;
+}
+
+.cl-formButtonPrimary:hover {
+  opacity: 0.88 !important;
+}
+
+.cl-footerActionText {
+  color: var(--muted) !important;
+  font-size: 12px !important;
+}
+
+.cl-footerActionLink {
+  color: var(--text) !important;
+  font-weight: 500 !important;
+  text-decoration: underline !important;
+}
+
+.cl-userButtonPopoverCard {
+  background: var(--bg) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+  color: var(--text) !important;
+}
+
+.cl-userButtonPopoverActionButton {
+  color: var(--text) !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background: var(--hover) !important;
+}
+
+.cl-userButtonPopoverFooter {
+  border-top: 1px solid var(--border) !important;
+}
+

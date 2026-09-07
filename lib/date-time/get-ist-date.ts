@@ -49,3 +49,6 @@ export function getISTDateTimeParts(date: Date = new Date()): DateTimeParts {
     weekday: result.weekday ?? "Monday",
   };
 }
+
+export const getISTDateParts = getISTDateTimeParts;
+

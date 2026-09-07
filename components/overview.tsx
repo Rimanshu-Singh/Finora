@@ -19,16 +19,18 @@ import { CategoryBreakdown } from "./charts";
 import { SpendingCard } from "./spending-card";
 import { SpendingRhythmChart } from "./dashboard/spending-rhythm-chart";
 import { DashboardGreeting } from "./dashboard/dashboard-greeting";
-import { sum, inPeriod, MONTH, TODAY } from "@/lib/format";
+import { useClerkDisplayName } from "./auth/user-menu";
+import { sum, inPeriod, MONTH, TODAY, YESTERDAY } from "@/lib/format";
 import type { Period } from "@/lib/types";
 export function Overview() {
   const { data } = useLedger();
+  const clerkName = useClerkDisplayName(data.settings.name.split(" ")[0]);
   const [period, setPeriod] = useState<Period>(data.settings.period);
   const monthly = data.expenses.filter((e) => e.date.startsWith(MONTH));
   const total = sum(monthly);
   const limit = data.budgets.find((b) => !b.categoryId)?.limit ?? 30000;
   const spent = sum(data.expenses.filter((e) => inPeriod(e, period)));
-  const yesterday = sum(data.expenses.filter((e) => e.date === "2026-09-06"));
+  const yesterday = sum(data.expenses.filter((e) => e.date === YESTERDAY));
   const today = sum(data.expenses.filter((e) => e.date === TODAY));
   const recent = [...data.expenses]
     .sort((a, b) => `${b.date}${b.time}`.localeCompare(`${a.date}${a.time}`))
@@ -36,7 +38,7 @@ export function Overview() {
   return (
     <>
       <header className="overview-header">
-        <DashboardGreeting userName={data.settings.name.split(" ")[0]} />
+        <DashboardGreeting userName={clerkName} />
         <AddButton />
       </header>
       <section className="spending-overview">

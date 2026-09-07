@@ -11,18 +11,26 @@ const routes = [
   "/settings",
   "/more",
 ];
-test("all routes render without browser errors", async ({ page }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (e) => errors.push(`${page.url()}: ${e.message}`));
-  for (const route of routes) {
-    await page.goto(route);
-    await expect(page.locator("main")).toBeVisible();
-    await expect(page.locator("main")).not.toContainText(
-      "Something went wrong",
-    );
-  }
-  expect(errors).toEqual([]);
-});
+
+test.describe("authenticated application flows", () => {
+  test.use({
+    extraHTTPHeaders: {
+      "x-test-bypass-auth": "finora-test-secret",
+    },
+  });
+
+  test("all routes render without browser errors", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(`${page.url()}: ${e.message}`));
+    for (const route of routes) {
+      await page.goto(route);
+      await expect(page.locator("main")).toBeVisible();
+      await expect(page.locator("main")).not.toContainText(
+        "Something went wrong",
+      );
+    }
+    expect(errors).toEqual([]);
+  });
 for (const width of [320, 375, 390, 430, 768, 1024, 1440])
   test(`responsive routes at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -279,4 +287,36 @@ test("dashboard displays dynamic greeting and live IST clock", async ({
   const updatedText = await dateLine.innerText();
   expect(updatedText).not.toEqual(initialText);
 });
+});
+
+test.describe("unauthenticated authentication flows", () => {
+  test("unauthenticated user accessing protected routes is redirected to sign-in", async ({
+    page,
+  }) => {
+    await page.goto("/dashboard");
+    await page.waitForURL(/\/sign-in/);
+    expect(page.url()).toContain("/sign-in");
+
+    await expect(page.locator(".auth-brand-header .brand")).toBeVisible();
+    await expect(page.locator(".auth-tagline")).toHaveText(
+      "Personal finance, thoughtfully.",
+    );
+  });
+
+  test("sign-in and sign-up routes render Finora branding and Clerk containers", async ({
+    page,
+  }) => {
+    await page.goto("/sign-in");
+    await expect(page.locator(".auth-brand-header .brand")).toBeVisible();
+    await expect(page.locator(".auth-tagline")).toBeVisible();
+    await expect(page.locator(".cl-rootBox")).toBeVisible();
+
+    await page.goto("/sign-up");
+    await expect(page.locator(".auth-brand-header .brand")).toBeVisible();
+    await expect(page.locator(".auth-tagline")).toBeVisible();
+    await expect(page.locator(".cl-rootBox")).toBeVisible();
+  });
+});
+
+
 

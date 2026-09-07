@@ -5,6 +5,10 @@ import { useLedger } from "./provider";
 import { Modal, CategoryIcon } from "./ui";
 import type { Expense, PaymentMethod } from "@/lib/types";
 import { TODAY, money } from "@/lib/format";
+import {
+  createExpenseAction,
+  updateExpenseAction,
+} from "@/lib/db/mutations/expenses";
 export const paymentMethods: PaymentMethod[] = [
   "UPI",
   "Cash",
@@ -149,7 +153,7 @@ export function ExpenseForm({
     }
   }
 
-  function save(e: React.FormEvent<HTMLFormElement>) {
+  async function save(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const value = Number(amount.replaceAll(",", ""));
     if (!Number.isFinite(value) || value < 0.01 || value > 100000000) {
@@ -158,8 +162,14 @@ export function ExpenseForm({
     }
     const f = new FormData(e.currentTarget);
     const now = new Date().toISOString();
+    const tagList = tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const tempId = expense?.id ?? `temp-${crypto.randomUUID()}`;
     const item: Expense = {
-      id: expense?.id ?? crypto.randomUUID(),
+      id: tempId,
       amount: Math.round(value * 100) / 100,
       categoryId: category,
       merchant:
@@ -171,10 +181,7 @@ export function ExpenseForm({
       time: time || String(f.get("time") || "12:00"),
       paymentMethod,
       note,
-      tags: tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
+      tags: tagList,
       isRecurring: f.get("recurring") === "on",
       createdAt: expense?.createdAt ?? now,
       updatedAt: now,
@@ -182,16 +189,71 @@ export function ExpenseForm({
       attachment: (f.get("attachment") as File)?.name || expense?.attachment,
       split: Number(split || 1),
     };
+
+    // Optimistically update UI
     setData((d) => ({
       ...d,
       expenses: expense
         ? d.expenses.map((x) => (x.id === expense.id ? item : x))
         : [item, ...d.expenses],
     }));
+
     notify(
       `${expense ? "Expense updated" : "Expense added"} · ${money(item.amount)} · ${data.categories.find((c) => c.id === category)?.name}`,
     );
     onClose();
+
+    // Persist to Supabase PostgreSQL via Server Action
+    try {
+      if (expense) {
+        const res = await updateExpenseAction(expense.id, {
+          amount: item.amount,
+          categoryId: item.categoryId,
+          merchant: item.merchant,
+          description: item.description,
+          date: item.date,
+          time: item.time,
+          paymentMethod: item.paymentMethod,
+          tags: item.tags,
+          note: item.note,
+          location: item.location,
+          split: item.split,
+          isRecurring: item.isRecurring,
+        });
+        if (res.data) {
+          setData((d) => ({
+            ...d,
+            expenses: d.expenses.map((x) => (x.id === expense.id ? res.data! : x)),
+          }));
+        }
+      } else {
+        const res = await createExpenseAction(
+          {
+            amount: item.amount,
+            categoryId: item.categoryId,
+            merchant: item.merchant,
+            description: item.description,
+            date: item.date,
+            time: item.time,
+            paymentMethod: item.paymentMethod,
+            tags: item.tags,
+            note: item.note,
+            location: item.location,
+            split: item.split,
+            isRecurring: item.isRecurring,
+          },
+          !!quick, // true if Quick Entry was populated
+        );
+        if (res.data) {
+          setData((d) => ({
+            ...d,
+            expenses: d.expenses.map((x) => (x.id === tempId ? res.data! : x)),
+          }));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to persist expense:", err);
+    }
   }
   return (
     <Modal
