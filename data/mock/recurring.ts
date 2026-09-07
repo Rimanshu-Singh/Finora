@@ -1,0 +1,43 @@
+import type { RecurringExpense } from "@/lib/types";
+export const mockRecurring: RecurringExpense[] = [
+  {
+    id: "r1",
+    name: "Netflix",
+    amount: 649,
+    categoryId: "subscriptions",
+    frequency: "Monthly",
+    nextDate: "2026-09-12",
+    paymentMethod: "Credit Card",
+    active: true,
+  },
+  {
+    id: "r2",
+    name: "Spotify",
+    amount: 119,
+    categoryId: "subscriptions",
+    frequency: "Monthly",
+    nextDate: "2026-09-15",
+    paymentMethod: "UPI",
+    active: true,
+  },
+  {
+    id: "r3",
+    name: "Mobile Recharge",
+    amount: 299,
+    categoryId: "bills",
+    frequency: "Monthly",
+    nextDate: "2026-09-24",
+    paymentMethod: "UPI",
+    active: true,
+  },
+  {
+    id: "r4",
+    name: "Gym",
+    amount: 999,
+    categoryId: "health",
+    frequency: "Monthly",
+    nextDate: "2026-10-01",
+    paymentMethod: "UPI",
+    active: true,
+  },
+];
