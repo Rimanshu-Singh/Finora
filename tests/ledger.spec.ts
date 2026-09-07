@@ -248,3 +248,34 @@ test("quick entry failure gracefully shows inline error and preserves form", asy
   await page.getByRole("button", { name: "Food", exact: true }).click();
   await expect(page.getByLabel("AMOUNT", { exact: true })).toHaveValue("500");
 });
+
+test("dashboard displays dynamic greeting and live IST clock", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const dateLine = page.locator(".date-line");
+  await expect(dateLine).toBeVisible();
+
+  // Matches uppercase date + IST + HH:mm:ss format
+  await expect(dateLine).toHaveText(
+    /[A-Z]+,\s+\d{1,2}\s+[A-Z]+\s+\d{4}\s+·\s+IST\s+·\s+\d{2}:\d{2}:\d{2}/,
+  );
+
+  // Matches greeting according to period
+  const headerHeading = page.locator(".overview-header h1");
+  await expect(headerHeading).toHaveText(
+    /Good (morning|afternoon|evening|night),\s+Rimanshu\./,
+  );
+
+  // Subtitle remains
+  await expect(page.locator(".overview-header p")).toHaveText(
+    "A clear view of your everyday.",
+  );
+
+  // Verify clock updates live
+  const initialText = await dateLine.innerText();
+  await page.waitForTimeout(1100);
+  const updatedText = await dateLine.innerText();
+  expect(updatedText).not.toEqual(initialText);
+});
+

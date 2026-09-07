@@ -544,6 +544,13 @@ main {
   color: var(--muted);
   letter-spacing: 1.45px;
   margin-bottom: 11px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.date-sep {
+  opacity: 0.5;
 }
 .overview-header h1 {
   font-size: 28px;

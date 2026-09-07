@@ -18,6 +18,7 @@ import { TransactionList } from "./transactions";
 import { CategoryBreakdown } from "./charts";
 import { SpendingCard } from "./spending-card";
 import { SpendingRhythmChart } from "./dashboard/spending-rhythm-chart";
+import { DashboardGreeting } from "./dashboard/dashboard-greeting";
 import { sum, inPeriod, MONTH, TODAY } from "@/lib/format";
 import type { Period } from "@/lib/types";
 export function Overview() {
@@ -35,14 +36,7 @@ export function Overview() {
   return (
     <>
       <header className="overview-header">
-        <div>
-          <div className="date-line">MONDAY, 7 SEPTEMBER 2026</div>
-          <h1>
-            Good morning, {data.settings.name.split(" ")[0]}
-            <span className="greeting-dot">.</span>
-          </h1>
-          <p>A clear view of your everyday.</p>
-        </div>
+        <DashboardGreeting userName={data.settings.name.split(" ")[0]} />
         <AddButton />
       </header>
       <section className="spending-overview">
