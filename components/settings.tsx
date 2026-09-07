@@ -9,8 +9,14 @@ export function SettingsPage() {
   const { data, setData, notify } = useLedger();
   const [preview, setPreview] = useState("");
   const s = data.settings;
-  const update = <K extends keyof Settings>(key: K, value: Settings[K]) =>
+  const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
+    if (key === "theme") {
+      try {
+        localStorage.setItem("finora_theme", value as string);
+      } catch {}
+    }
     setData((d) => ({ ...d, settings: { ...d.settings, [key]: value } }));
+  };
   return (
     <>
       <PageHeader title="Settings" subtitle="Make Finora feel like you." />

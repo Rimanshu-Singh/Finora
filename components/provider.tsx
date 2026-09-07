@@ -41,14 +41,32 @@ export function LedgerProvider({
     [],
   );
   useEffect(() => {
+    try {
+      const stored = localStorage.getItem("finora_theme") as
+        | "System"
+        | "Light"
+        | "Dark"
+        | null;
+      if (stored && stored !== data.settings.theme) {
+        setData((d) => ({
+          ...d,
+          settings: { ...d.settings, theme: stored },
+        }));
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const sync = () =>
-      (document.documentElement.dataset.theme =
+    const sync = () => {
+      const themeValue =
         data.settings.theme === "System"
           ? media.matches
             ? "dark"
             : "light"
-          : data.settings.theme.toLowerCase());
+          : data.settings.theme.toLowerCase();
+      document.documentElement.dataset.theme = themeValue;
+    };
     sync();
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);

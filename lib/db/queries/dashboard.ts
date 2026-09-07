@@ -50,7 +50,7 @@ export async function getDashboardDataForUser(
       weekStarts: "Monday",
       period: "Month" as Period,
       startScreen: "overview",
-      theme: "Light",
+      theme: "Dark",
       paymentMethod: "UPI",
       suggestions: true,
       askNote: false,

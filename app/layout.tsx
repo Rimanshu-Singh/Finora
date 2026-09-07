@@ -20,7 +20,7 @@ export default async function RootLayout({
   const initialData = await getUserLedgerData();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body>
         <ClerkProvider
           appearance={{

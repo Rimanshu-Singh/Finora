@@ -25,7 +25,7 @@ import { useLedger } from "./provider";
 import { useUser } from "@clerk/nextjs";
 import { UserMenu } from "./auth/user-menu";
 const navigation = [
-  { label: "Overview", href: "/", icon: House, group: "" },
+  { label: "Overview", href: "/dashboard", icon: House, group: "" },
   {
     label: "Transactions",
     href: "/transactions",
@@ -68,7 +68,7 @@ export function DesktopSidebar({
       aria-label="Main navigation sidebar"
     >
       <div className="sidebar-brand-row">
-        <Link href="/" className="brand" onClick={onClose}>
+        <Link href="/dashboard" className="brand" onClick={onClose}>
           <span className="brand-mark">
             <i />
             <i />
@@ -147,24 +147,30 @@ export function DesktopSidebar({
 }
 export function ThemeToggle() {
   const { data, setData } = useLedger();
+  const isDark =
+    data.settings.theme === "Dark" ||
+    (typeof document !== "undefined" &&
+      document.documentElement.dataset.theme === "dark");
+
   return (
     <button
       className="icon-button"
       aria-label="Toggle theme"
-      onClick={() =>
+      onClick={() => {
+        const nextTheme = isDark ? "Light" : "Dark";
+        try {
+          localStorage.setItem("finora_theme", nextTheme);
+        } catch {}
         setData((d) => ({
           ...d,
           settings: {
             ...d.settings,
-            theme:
-              document.documentElement.dataset.theme === "dark"
-                ? "Light"
-                : "Dark",
+            theme: nextTheme,
           },
-        }))
-      }
+        }));
+      }}
     >
-      {data.settings.theme === "Dark" ? <Sun size={18} /> : <Moon size={18} />}
+      {isDark ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
 }
@@ -172,7 +178,7 @@ export function MobileBottomNav() {
   const path = usePathname();
   const { openExpense } = useLedger();
   const items = [
-    { label: "Home", href: "/", icon: House },
+    { label: "Home", href: "/dashboard", icon: House },
     { label: "Activity", href: "/transactions", icon: ArrowLeftRight },
     { label: "Insights", href: "/analytics", icon: ChartNoAxesCombined },
     { label: "More", href: "/more", icon: Ellipsis },
@@ -220,6 +226,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setSidebarOpen(false);
   }
 
+  if (pathname === "/") return <>{children}</>;
+
   // Auth pages (sign-in, sign-up) render centered without the application dashboard shell
   if (pathname?.startsWith("/sign-in") || pathname?.startsWith("/sign-up")) {
     return <main id="main">{children}</main>;
@@ -252,13 +260,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               type="button"
               className="mobile-sidebar-toggle icon-button"
               onClick={() => setSidebarOpen((prev) => !prev)}
-              aria-label={sidebarOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-label={
+                sidebarOpen ? "Close navigation menu" : "Open navigation menu"
+              }
               aria-expanded={sidebarOpen}
             >
               <Menu size={20} />
             </button>
-            <span className="topbar-label">Personal finance, thoughtfully.</span>
-            <Link href="/" className="mobile-brand">
+            <span className="topbar-label">
+              Personal finance, thoughtfully.
+            </span>
+            <Link href="/dashboard" className="mobile-brand">
               finora.
             </Link>
           </div>

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 const routes = [
-  "/",
+  "/dashboard",
   "/transactions",
   "/transactions/exp-1",
   "/analytics",
@@ -61,7 +61,7 @@ for (const width of [320, 375, 390, 430, 768, 1024, 1440])
     }
   });
 test("expense lifecycle updates shared views", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/dashboard");
   await expect(page.locator(".hero-amount")).toHaveText("₹1,284");
   await page
     .getByRole("button", { name: "Add expense", exact: true })
@@ -97,7 +97,7 @@ test("expense lifecycle updates shared views", async ({ page }) => {
   await expect(page.locator(".transaction-row")).toHaveCount(1);
 });
 test("keyboard search, dialog focus, and themes", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/dashboard");
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("dialog")).toBeVisible();
   await page
@@ -174,7 +174,7 @@ test("budgets, recurring, categories, calendar and quick entry", async ({
 test("quick entry populates payment method cash, date 5 sep, and expands more details for note/time", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/dashboard");
   await page
     .getByRole("button", { name: "Add expense", exact: true })
     .first()
@@ -228,7 +228,7 @@ test("quick entry populates payment method cash, date 5 sep, and expands more de
 test("quick entry failure gracefully shows inline error and preserves form", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/dashboard");
   await page
     .getByRole("button", { name: "Add expense", exact: true })
     .first()
@@ -260,7 +260,7 @@ test("quick entry failure gracefully shows inline error and preserves form", asy
 test("dashboard displays dynamic greeting and live IST clock", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/dashboard");
   const dateLine = page.locator(".date-line");
   await expect(dateLine).toBeVisible();
 
