@@ -138,9 +138,113 @@ test("budgets, recurring, categories, calendar and quick entry", async ({
     .getByRole("button", { name: "Add expense", exact: true })
     .first()
     .click();
+  await page.route("**/api/ai/quick-entry", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        data: {
+          amount: 450,
+          category: "Transport",
+          merchant: "Uber",
+          description: "Uber ride",
+          date: null,
+        },
+      }),
+    });
+  });
   await page.getByLabel("Quick entry").fill("450 uber");
+  await page.getByRole("button", { name: "QUICK ENTRY" }).click();
   await expect(page.getByLabel("AMOUNT", { exact: true })).toHaveValue("450");
   await expect(
     page.getByRole("button", { name: "Transport", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Merchant / paid to")).toHaveValue("Uber");
+});
+
+test("quick entry populates payment method cash, date 5 sep, and expands more details for note/time", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Add expense", exact: true })
+    .first()
+    .click();
+
+  await page.route("**/api/ai/quick-entry", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        data: {
+          amount: 500,
+          category: "Groceries",
+          merchant: null,
+          description: null,
+          date: "2026-09-05",
+          time: "19:30",
+          paymentMethod: "Cash",
+          tags: ["weekend"],
+          note: "team celebration",
+          location: "Park Street",
+          split: 2,
+        },
+      }),
+    });
+  });
+
+  await page
+    .getByLabel("Quick entry")
+    .fill("500 in groceries 5 sep with cash 7:30pm note team celebration");
+  await page.getByRole("button", { name: "QUICK ENTRY" }).click();
+
+  await expect(page.getByLabel("AMOUNT", { exact: true })).toHaveValue("500");
+  await expect(
+    page.getByRole("button", { name: "Groceries", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("Date")).toHaveValue("2026-09-05");
+  await expect(page.getByLabel("Payment method")).toHaveValue("Cash");
+
+  // Advanced fields section should have expanded automatically
+  await expect(page.locator(".advanced-fields")).toBeVisible();
+  await expect(page.getByLabel("Time")).toHaveValue("19:30");
+  await expect(page.getByPlaceholder("Anything to remember?")).toHaveValue(
+    "team celebration",
+  );
+  await expect(page.getByLabel("Location")).toHaveValue("Park Street");
+  await expect(page.getByLabel("Split between")).toHaveValue("2");
+});
+
+test("quick entry failure gracefully shows inline error and preserves form", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Add expense", exact: true })
+    .first()
+    .click();
+
+  await page.route("**/api/ai/quick-entry", async (route) => {
+    await route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: false,
+        error: "Quick Entry isn't available right now. You can still enter the expense manually.",
+      }),
+    });
+  });
+
+  await page.getByLabel("Quick entry").fill("invalid text");
+  await page.getByRole("button", { name: "QUICK ENTRY" }).click();
+
+  await expect(page.locator(".quick-entry-error")).toContainText(
+    "Quick Entry isn't available right now",
+  );
+  // Form remains open and editable manually
+  await page.getByLabel("AMOUNT", { exact: true }).fill("500");
+  await page.getByRole("button", { name: "Food", exact: true }).click();
+  await expect(page.getByLabel("AMOUNT", { exact: true })).toHaveValue("500");
 });

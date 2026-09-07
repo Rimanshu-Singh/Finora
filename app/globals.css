@@ -2136,10 +2136,41 @@ main {
   padding: 9px 0;
   font-size: 11px;
 }
-.quick-entry > span {
-  font-size: 7px;
+.quick-entry > span,
+.quick-entry-action {
+  font-size: 8px;
+  font-weight: 600;
   letter-spacing: 0.6px;
   white-space: nowrap;
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 6px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.quick-entry-action:hover:not(:disabled) {
+  border-color: var(--muted);
+  background: var(--surface-hover, var(--secondary));
+}
+.quick-entry-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.quick-entry-sparkle.is-loading {
+  animation: quick-entry-spin 1s linear infinite;
+  color: var(--accent);
+}
+@keyframes quick-entry-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.quick-entry-error {
+  font-size: 11px;
+  color: #ef4444;
+  margin-top: -10px;
+  margin-bottom: -4px;
 }
 .field-label {
   font-size: 9px;

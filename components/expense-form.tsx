@@ -25,27 +25,130 @@ export function ExpenseForm({
   const [amount, setAmount] = useState(expense?.amount.toString() ?? ""),
     [category, setCategory] = useState(expense?.categoryId ?? "food"),
     [merchant, setMerchant] = useState(expense?.merchant ?? ""),
+    [date, setDate] = useState(expense?.date ?? TODAY),
+    [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+      expense?.paymentMethod ?? data.settings.paymentMethod,
+    ),
+    [time, setTime] = useState(expense?.time ?? "12:00"),
+    [tags, setTags] = useState(expense?.tags.join(", ") ?? ""),
+    [note, setNote] = useState(expense?.note ?? ""),
+    [location, setLocation] = useState(expense?.location ?? ""),
+    [split, setSplit] = useState(expense?.split ?? 1),
     [more, setMore] = useState(!!expense),
     [quick, setQuick] = useState(""),
-    [note, setNote] = useState(expense?.note ?? ""),
+    [quickLoading, setQuickLoading] = useState(false),
+    [quickError, setQuickError] = useState(""),
     [error, setError] = useState("");
-  function parseQuick(value: string) {
-    setQuick(value);
-    const match = value.match(/(?:₹\s*)?([\d,]+(?:\.\d{1,2})?)\s+(.+)/);
-    if (!match) return;
-    setAmount(match[1].replaceAll(",", ""));
-    setMerchant(match[2]);
-    const text = match[2].toLowerCase();
-    setCategory(
-      /uber|metro|taxi/.test(text)
-        ? "transport"
-        : /clothes|shirt|h&m/.test(text)
-          ? "clothing"
-          : /grocery|groceries|fresh/.test(text)
-            ? "groceries"
-            : "food",
-    );
+
+  function applyQuickEntryResult(result: {
+    amount?: number | null;
+    category?: string | null;
+    merchant?: string | null;
+    description?: string | null;
+    date?: string | null;
+    time?: string | null;
+    paymentMethod?: PaymentMethod | null;
+    tags?: string[] | null;
+    note?: string | null;
+    location?: string | null;
+    split?: number | null;
+  }) {
+    if (result.amount != null) {
+      setAmount(result.amount.toString());
+      setError("");
+    }
+
+    if (result.category) {
+      const catId = result.category.toLowerCase().replaceAll(" ", "-");
+      const match = data.categories.find(
+        (c) =>
+          c.id === catId ||
+          c.name.toLowerCase() === result.category!.toLowerCase(),
+      );
+      if (match) {
+        setCategory(match.id);
+      }
+    }
+
+    if (result.merchant != null && result.merchant.trim() !== "") {
+      setMerchant(result.merchant.trim());
+    } else if (result.description != null && result.description.trim() !== "") {
+      setMerchant(result.description.trim());
+    }
+
+    if (result.date != null && result.date.trim() !== "") {
+      setDate(result.date.trim());
+    }
+
+    if (result.paymentMethod != null) {
+      setPaymentMethod(result.paymentMethod);
+    }
+
+    let hasAdvancedDetails = false;
+
+    if (result.time != null && result.time.trim() !== "") {
+      setTime(result.time.trim());
+      hasAdvancedDetails = true;
+    }
+
+    if (result.tags != null && result.tags.length > 0) {
+      setTags(result.tags.join(", "));
+      hasAdvancedDetails = true;
+    }
+
+    if (result.note != null && result.note.trim() !== "") {
+      setNote(result.note.trim());
+      hasAdvancedDetails = true;
+    }
+
+    if (result.location != null && result.location.trim() !== "") {
+      setLocation(result.location.trim());
+      hasAdvancedDetails = true;
+    }
+
+    if (result.split != null && result.split > 1) {
+      setSplit(result.split);
+      hasAdvancedDetails = true;
+    }
+
+    if (hasAdvancedDetails) {
+      setMore(true);
+    }
   }
+
+  async function handleQuickEntry() {
+    const trimmed = quick.trim();
+    if (!trimmed || quickLoading) return;
+
+    setQuickLoading(true);
+    setQuickError("");
+
+    try {
+      const res = await fetch("/api/ai/quick-entry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: trimmed }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        setQuickError(
+          json.error || "Couldn't understand that. Try ‘450 Uber’.",
+        );
+        return;
+      }
+
+      applyQuickEntryResult(json.data);
+    } catch {
+      setQuickError(
+        "Quick Entry isn't available right now. You can still enter the expense manually.",
+      );
+    } finally {
+      setQuickLoading(false);
+    }
+  }
+
   function save(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const value = Number(amount.replaceAll(",", ""));
@@ -64,22 +167,20 @@ export function ExpenseForm({
         data.categories.find((c) => c.id === category)?.name ||
         "Expense",
       description: merchant,
-      date: String(f.get("date") || TODAY),
-      time: String(f.get("time") || "12:00"),
-      paymentMethod: String(
-        f.get("payment") || data.settings.paymentMethod,
-      ) as PaymentMethod,
+      date: date || String(f.get("date") || TODAY),
+      time: time || String(f.get("time") || "12:00"),
+      paymentMethod,
       note,
-      tags: String(f.get("tags") || "")
+      tags: tags
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
       isRecurring: f.get("recurring") === "on",
       createdAt: expense?.createdAt ?? now,
       updatedAt: now,
-      location: String(f.get("location") || ""),
+      location,
       attachment: (f.get("attachment") as File)?.name || expense?.attachment,
-      split: Number(f.get("split") || 1),
+      split: Number(split || 1),
     };
     setData((d) => ({
       ...d,
@@ -99,16 +200,47 @@ export function ExpenseForm({
     >
       <form onSubmit={save} className="expense-form">
         {!expense && data.settings.suggestions && (
-          <div className="quick-entry">
-            <Sparkles size={16} />
-            <input
-              aria-label="Quick entry"
-              placeholder="Try “450 uber” or “320 dinner”"
-              value={quick}
-              onChange={(e) => parseQuick(e.target.value)}
-            />
-            <span>QUICK ENTRY</span>
-          </div>
+          <>
+            <div className="quick-entry">
+              <Sparkles
+                size={16}
+                className={
+                  quickLoading
+                    ? "quick-entry-sparkle is-loading"
+                    : "quick-entry-sparkle"
+                }
+              />
+              <input
+                aria-label="Quick entry"
+                placeholder="Try “450 uber” or “320 dinner”"
+                value={quick}
+                disabled={quickLoading}
+                onChange={(e) => {
+                  setQuick(e.target.value);
+                  if (quickError) setQuickError("");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleQuickEntry();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="quick-entry-action"
+                disabled={quickLoading || !quick.trim()}
+                onClick={handleQuickEntry}
+              >
+                {quickLoading ? "Parsing..." : "QUICK ENTRY"}
+              </button>
+            </div>
+            {quickError && (
+              <p className="quick-entry-error" role="alert">
+                {quickError}
+              </p>
+            )}
+          </>
         )}
         <label className="field-label" htmlFor="expense-amount">
           AMOUNT
@@ -171,7 +303,8 @@ export function ExpenseForm({
             <input
               name="date"
               type="date"
-              defaultValue={expense?.date ?? TODAY}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               required
             />
           </label>
@@ -179,12 +312,15 @@ export function ExpenseForm({
             Payment method
             <select
               name="payment"
-              defaultValue={
-                expense?.paymentMethod ?? data.settings.paymentMethod
+              value={paymentMethod}
+              onChange={(e) =>
+                setPaymentMethod(e.target.value as PaymentMethod)
               }
             >
               {paymentMethods.map((p) => (
-                <option key={p}>{p}</option>
+                <option key={p} value={p}>
+                  {p}
+                </option>
               ))}
             </select>
           </label>
@@ -214,7 +350,8 @@ export function ExpenseForm({
               <input
                 type="time"
                 name="time"
-                defaultValue={expense?.time ?? "12:00"}
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
               />
             </label>
             <label>
@@ -222,7 +359,8 @@ export function ExpenseForm({
               <input
                 name="tags"
                 placeholder="work, essentials"
-                defaultValue={expense?.tags.join(", ")}
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
               />
             </label>
           </div>
@@ -240,7 +378,8 @@ export function ExpenseForm({
               Location
               <input
                 name="location"
-                defaultValue={expense?.location}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 placeholder="Optional"
               />
             </label>
@@ -251,7 +390,10 @@ export function ExpenseForm({
                 type="number"
                 min="1"
                 max="100"
-                defaultValue={expense?.split ?? 1}
+                value={split}
+                onChange={(e) =>
+                  setSplit(Math.max(1, Number(e.target.value)))
+                }
               />
             </label>
           </div>
