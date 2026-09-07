@@ -5,8 +5,8 @@ import { getLedgerData } from "@/lib/data";
 import "./globals.css";
 export const metadata: Metadata = {
   title: {
-    default: "Ledger — Your everyday, understood",
-    template: "%s · Ledger",
+    default: "Finora — Your everyday, understood",
+    template: "%s · Finora",
   },
   description: "A calm, considered space for everyday spending.",
 };

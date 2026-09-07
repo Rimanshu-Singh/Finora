@@ -92,7 +92,9 @@ test("keyboard search, dialog focus, and themes", async ({ page }) => {
   await page.goto("/");
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("dialog")).toBeVisible();
-  await page.getByRole("textbox", { name: "Search Ledger" }).fill("swiggy");
+  await page
+    .getByRole("textbox", { name: /Search (Finora|Ledger)/ })
+    .fill("swiggy");
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/transactions\/exp-/);

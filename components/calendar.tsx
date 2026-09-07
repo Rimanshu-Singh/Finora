@@ -115,7 +115,7 @@ export function CalendarPage() {
           ) : (
             <EmptyState
               title="No expenses this day."
-              description="A quiet day in your Ledger."
+              description="A quiet day in your Finora."
               action={<AddButton />}
             />
           )}

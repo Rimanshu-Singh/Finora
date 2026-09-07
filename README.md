@@ -1,4 +1,4 @@
-# Ledger
+# Finora
 
 A complete monochrome personal expense tracking frontend built with Next.js 16, React, TypeScript, Tailwind CSS and Lucide icons. No authentication, API, database, external financial services, or persistence is configured.
 

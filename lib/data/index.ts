@@ -14,3 +14,4 @@ export const getLedgerData = () => ({
   recurring: structuredClone(mockRecurring),
   settings: structuredClone(mockSettings),
 });
+export const getFinoraData = getLedgerData;

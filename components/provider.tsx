@@ -20,9 +20,11 @@ type Context = {
 const LedgerContext = createContext<Context | null>(null);
 export function useLedger() {
   const c = useContext(LedgerContext);
-  if (!c) throw Error("Ledger provider missing");
+  if (!c) throw Error("Finora provider missing");
   return c;
 }
+export const useFinora = useLedger;
+
 export function LedgerProvider({
   initial,
   children,
@@ -88,3 +90,4 @@ export function LedgerProvider({
     </LedgerContext.Provider>
   );
 }
+export const FinoraProvider = LedgerProvider;

@@ -49,7 +49,7 @@ export function DesktopSidebar() {
           <i />
           <i />
         </span>
-        ledger<span className="brand-dot">.</span>
+        finora<span className="brand-dot">.</span>
       </Link>
       <div className="workspace">
         <span className="avatar">{data.settings.name.charAt(0) || "R"}</span>
@@ -173,13 +173,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="topbar">
           <span className="topbar-label">Personal finance, thoughtfully.</span>
           <Link href="/" className="mobile-brand">
-            ledger.
+            finora.
           </Link>
           <div className="topbar-actions">
             <button
               className="search-trigger"
               onClick={openSearch}
-              aria-label="Search Ledger"
+              aria-label="Search Finora"
             >
               <Search size={17} />
               <span>Search anything</span>
@@ -201,7 +201,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </main>
         <footer className="page-footer">
           <span>LESS GUESSWORK. MORE PEACE OF MIND.</span>
-          <span>Ledger · Your everyday, understood.</span>
+          <span>Finora · Your everyday, understood.</span>
         </footer>
       </div>
       <MobileBottomNav />

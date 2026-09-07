@@ -17,7 +17,7 @@ export function MorePage() {
   return (
     <>
       <PageHeader
-        title="Your Ledger"
+        title="Your Finora"
         subtitle="A little more control. A lot more clarity."
       />
       <section className="more-summary">

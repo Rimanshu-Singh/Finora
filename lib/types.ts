@@ -63,10 +63,11 @@ export interface Settings {
   suggestions: boolean;
   askNote: boolean;
 }
-export interface LedgerData {
+export interface FinoraData {
   expenses: Expense[];
   categories: Category[];
   budgets: Budget[];
   recurring: RecurringExpense[];
   settings: Settings;
 }
+export type LedgerData = FinoraData;

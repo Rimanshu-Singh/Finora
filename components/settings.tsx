@@ -13,7 +13,7 @@ export function SettingsPage() {
     setData((d) => ({ ...d, settings: { ...d.settings, [key]: value } }));
   return (
     <>
-      <PageHeader title="Settings" subtitle="Make Ledger feel like you." />
+      <PageHeader title="Settings" subtitle="Make Finora feel like you." />
       <div className="settings-content">
         <section className="settings-section">
           <h2>General</h2>
@@ -178,7 +178,7 @@ export function SettingsPage() {
           <div className="setting-row">
             <span>
               Delete all expense data
-              <small>Permanently clear your Ledger.</small>
+              <small>Permanently clear your Finora.</small>
             </span>
             <button
               className="button danger-outline"

@@ -72,7 +72,7 @@ export function PageHeader({
   return (
     <header className="page-header">
       <div>
-        <div className="eyebrow">YOUR PERSONAL LEDGER</div>
+        <div className="eyebrow">YOUR PERSONAL FINORA</div>
         <h1>{title}</h1>
         <p>{subtitle}</p>
       </div>

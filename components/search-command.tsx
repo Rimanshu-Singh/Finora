@@ -24,13 +24,13 @@ export function SearchCommand({ onClose }: { onClose: () => void }) {
     router.push(path);
   };
   return (
-    <Modal title="Search your Ledger" onClose={onClose}>
+    <Modal title="Search your Finora" onClose={onClose}>
       <div className="search-field command-input">
         <Search size={19} />
         <input
           autoFocus
           placeholder="Merchant, category, amount, or month…"
-          aria-label="Search Ledger"
+          aria-label="Search Finora"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
