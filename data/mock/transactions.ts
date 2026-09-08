@@ -1,12 +1,13 @@
 import type { Expense, PaymentMethod } from "@/lib/types";
+import { TODAY, YESTERDAY } from "@/lib/format";
 const rows: [string, number, string, string, string?][] = [
-  ["Swiggy", 420, "food", "2026-09-07", "13:24"],
-  ["Uber", 186, "transport", "2026-09-07", "10:08"],
-  ["Coffee", 180, "food", "2026-09-07", "09:30"],
-  ["Dinner", 498, "food", "2026-09-07", "20:15"],
-  ["Reliance Fresh", 1240, "groceries", "2026-09-06"],
-  ["H&M", 2499, "clothing", "2026-09-06"],
-  ["Metro", 60, "transport", "2026-09-06"],
+  ["Swiggy", 420, "food", TODAY, "13:24"],
+  ["Uber", 186, "transport", TODAY, "10:08"],
+  ["Coffee", 180, "food", TODAY, "09:30"],
+  ["Dinner", 498, "food", TODAY, "20:15"],
+  ["Reliance Fresh", 1240, "groceries", YESTERDAY],
+  ["H&M", 2499, "clothing", YESTERDAY],
+  ["Metro", 60, "transport", YESTERDAY],
   ["Netflix", 649, "subscriptions", "2026-09-05"],
   ["Amazon", 1899, "shopping", "2026-09-05"],
   ["Mobile Recharge", 299, "bills", "2026-09-05"],

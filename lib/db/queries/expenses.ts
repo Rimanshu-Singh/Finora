@@ -82,3 +82,22 @@ export async function getRecentExpenses(
     return [];
   }
 }
+
+export async function getExpenseById(
+  id: string,
+  userId: string,
+): Promise<Expense | null> {
+  if (!process.env.DATABASE_URL) {
+    return null;
+  }
+  try {
+    const expense = await prisma.expense.findFirst({
+      where: { id, userId },
+    });
+
+    return expense ? serializeExpense(expense) : null;
+  } catch (err) {
+    console.error("Error fetching expense by id:", err);
+    return null;
+  }
+}

@@ -1,6 +1,8 @@
 node_modules/
 .next/
+.next_old/
 test-results/
+test-results*/
 playwright-report/
 *.tsbuildinfo
 .env

@@ -40,6 +40,16 @@ export function LedgerProvider({
     (expense?: Expense) => setEditor(expense ?? null),
     [],
   );
+
+  useEffect(() => {
+    setData((prev) => ({
+      ...initial,
+      settings: {
+        ...initial.settings,
+        theme: prev?.settings?.theme || initial.settings?.theme,
+      },
+    }));
+  }, [initial]);
   useEffect(() => {
     try {
       const stored = localStorage.getItem("finora_theme") as

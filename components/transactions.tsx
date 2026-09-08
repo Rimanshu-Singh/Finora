@@ -22,7 +22,7 @@ import {
   ConfirmDialog,
 } from "./ui";
 import { dateLabel, sum, inPeriod } from "@/lib/format";
-import { deleteExpenseAction } from "@/lib/db/mutations/expenses";
+import { deleteExpenseAction, createExpenseAction } from "@/lib/db/mutations/expenses";
 import type { Expense, Period } from "@/lib/types";
 import { paymentMethods } from "./expense-form";
 export function TransactionRow({
@@ -167,15 +167,33 @@ export function TransactionDetail({
         </button>
         <button
           className="button"
-          onClick={() => {
-            const copy = {
-              ...expense,
-              id: crypto.randomUUID(),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            };
-            setData((d) => ({ ...d, expenses: [copy, ...d.expenses] }));
-            notify("Expense duplicated");
+          onClick={async () => {
+            try {
+              const res = await createExpenseAction({
+                amount: expense.amount,
+                categoryId: expense.categoryId,
+                merchant: expense.merchant,
+                description: expense.description,
+                date: expense.date,
+                time: expense.time,
+                paymentMethod: expense.paymentMethod,
+                note: expense.note,
+                tags: expense.tags,
+                location: expense.location,
+                split: expense.split,
+                isRecurring: expense.isRecurring,
+              });
+              if (res.success && res.data) {
+                setData((d) => ({ ...d, expenses: [res.data!, ...d.expenses] }));
+                notify("Expense duplicated");
+                router.refresh();
+              } else {
+                notify(res.error || "Failed to duplicate expense");
+              }
+            } catch (err) {
+              console.error("Failed to duplicate expense:", err);
+              notify("Failed to duplicate expense");
+            }
           }}
         >
           <Copy size={15} />
@@ -192,23 +210,30 @@ export function TransactionDetail({
       {confirm && (
         <ConfirmDialog
           title="Delete this expense?"
-          description="This expense will be removed from your spending totals for this session."
+          description="This expense will be permanently deleted from your ledger."
           onClose={() => setConfirm(false)}
           onConfirm={async () => {
             const expenseId = expense.id;
-            setData((d) => ({
-              ...d,
-              expenses: d.expenses.filter((e) => e.id !== expenseId),
-            }));
-            setConfirm(false);
-            notify("Expense deleted");
-            if (onClose) onClose();
-            else router.push("/transactions");
-
             try {
-              await deleteExpenseAction(expenseId);
+              const res = await deleteExpenseAction(expenseId);
+              if (res.success) {
+                setData((d) => ({
+                  ...d,
+                  expenses: d.expenses.filter((e) => e.id !== expenseId),
+                }));
+                setConfirm(false);
+                notify("Expense deleted");
+                if (onClose) onClose();
+                else router.push("/transactions");
+                router.refresh();
+              } else {
+                setConfirm(false);
+                notify(res.error || "Failed to delete expense");
+              }
             } catch (err) {
               console.error("Failed to delete expense:", err);
+              setConfirm(false);
+              notify("Failed to delete expense");
             }
           }}
         />

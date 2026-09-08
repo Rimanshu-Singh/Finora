@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronDown, Sparkles } from "lucide-react";
 import { useLedger } from "./provider";
 import { Modal, CategoryIcon } from "./ui";
@@ -26,6 +27,8 @@ export function ExpenseForm({
   onClose: () => void;
 }) {
   const { data, setData, notify } = useLedger();
+  const router = useRouter();
+  const [isSaving, setIsSaving] = useState(false);
   const [amount, setAmount] = useState(expense?.amount.toString() ?? ""),
     [category, setCategory] = useState(expense?.categoryId ?? "food"),
     [merchant, setMerchant] = useState(expense?.merchant ?? ""),
@@ -161,100 +164,71 @@ export function ExpenseForm({
       return;
     }
     const f = new FormData(e.currentTarget);
-    const now = new Date().toISOString();
     const tagList = tags
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
 
-    const tempId = expense?.id ?? `temp-${crypto.randomUUID()}`;
-    const item: Expense = {
-      id: tempId,
-      amount: Math.round(value * 100) / 100,
+    const payload = {
+      amount: value,
       categoryId: category,
       merchant:
         merchant.trim() ||
         data.categories.find((c) => c.id === category)?.name ||
         "Expense",
-      description: merchant,
+      description: merchant.trim() || undefined,
       date: date || String(f.get("date") || TODAY),
       time: time || String(f.get("time") || "12:00"),
       paymentMethod,
-      note,
+      note: note.trim() || undefined,
       tags: tagList,
-      isRecurring: f.get("recurring") === "on",
-      createdAt: expense?.createdAt ?? now,
-      updatedAt: now,
-      location,
-      attachment: (f.get("attachment") as File)?.name || expense?.attachment,
+      location: location.trim() || undefined,
       split: Number(split || 1),
+      isRecurring: f.get("recurring") === "on",
     };
 
-    // Optimistically update UI
-    setData((d) => ({
-      ...d,
-      expenses: expense
-        ? d.expenses.map((x) => (x.id === expense.id ? item : x))
-        : [item, ...d.expenses],
-    }));
+    setIsSaving(true);
 
-    notify(
-      `${expense ? "Expense updated" : "Expense added"} · ${money(item.amount)} · ${data.categories.find((c) => c.id === category)?.name}`,
-    );
-    onClose();
-
-    // Persist to Supabase PostgreSQL via Server Action
     try {
       if (expense) {
-        const res = await updateExpenseAction(expense.id, {
-          amount: item.amount,
-          categoryId: item.categoryId,
-          merchant: item.merchant,
-          description: item.description,
-          date: item.date,
-          time: item.time,
-          paymentMethod: item.paymentMethod,
-          tags: item.tags,
-          note: item.note,
-          location: item.location,
-          split: item.split,
-          isRecurring: item.isRecurring,
-        });
-        if (res.data) {
+        const res = await updateExpenseAction(expense.id, payload);
+        if (res.success && res.data) {
           setData((d) => ({
             ...d,
             expenses: d.expenses.map((x) => (x.id === expense.id ? res.data! : x)),
           }));
+          notify(
+            `Expense updated · ${money(res.data.amount)} · ${data.categories.find((c) => c.id === res.data!.categoryId)?.name ?? "Expense"}`,
+          );
+          onClose();
+          router.refresh();
+        } else {
+          notify(res.error || "Could not update expense. Please try again.");
         }
       } else {
-        const res = await createExpenseAction(
-          {
-            amount: item.amount,
-            categoryId: item.categoryId,
-            merchant: item.merchant,
-            description: item.description,
-            date: item.date,
-            time: item.time,
-            paymentMethod: item.paymentMethod,
-            tags: item.tags,
-            note: item.note,
-            location: item.location,
-            split: item.split,
-            isRecurring: item.isRecurring,
-          },
-          !!quick, // true if Quick Entry was populated
-        );
-        if (res.data) {
+        const res = await createExpenseAction(payload, !!quick);
+        if (res.success && res.data) {
           setData((d) => ({
             ...d,
-            expenses: d.expenses.map((x) => (x.id === tempId ? res.data! : x)),
+            expenses: [res.data!, ...d.expenses],
           }));
+          notify(
+            `Expense added · ${money(res.data.amount)} · ${data.categories.find((c) => c.id === res.data!.categoryId)?.name ?? "Expense"}`,
+          );
+          onClose();
+          router.refresh();
+        } else {
+          notify(res.error || "Could not save expense. Please try again.");
         }
       }
     } catch (err) {
       console.error("Failed to persist expense:", err);
+      notify("Could not save expense. Please check your connection.");
+    } finally {
+      setIsSaving(false);
     }
   }
+
   return (
     <Modal
       title={expense ? "Edit expense" : "A little spent. All accounted for."}
@@ -477,8 +451,8 @@ export function ExpenseForm({
           <button type="button" className="button" onClick={onClose}>
             Cancel
           </button>
-          <button className="button primary" type="submit">
-            {expense ? "Save changes" : "Add expense"}
+          <button className="button primary" type="submit" disabled={isSaving}>
+            {isSaving ? "Saving…" : (expense ? "Save changes" : "Add expense")}
             <span aria-hidden="true">↵</span>
           </button>
         </div>

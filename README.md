@@ -2,6 +2,50 @@
 
 A complete monochrome personal expense tracking frontend built with Next.js 16, React, TypeScript, Tailwind CSS and Lucide icons. No authentication, API, database, external financial services, or persistence is configured.
 
+## Database: Neon PostgreSQL
+
+Finora uses **Neon PostgreSQL** as its sole database source of truth, interfaced via **Prisma ORM**.
+
+### 1. Database Setup
+
+1. Create a project at [Neon](https://neon.tech).
+2. Copy your connection strings from the Neon Console:
+   - **Pooled connection string** (uses Neon connection pooler for serverless Next.js runtimes) -> `DATABASE_URL`
+   - **Direct connection string** (direct PostgreSQL connection for CLI migrations) -> `DIRECT_URL`
+3. Configure your local environment in `.env.local`:
+   ```sh
+   DATABASE_URL="postgresql://[user]:[password]@[neon-hostname]-pooler.[region].aws.neon.tech/[dbname]?sslmode=require"
+   DIRECT_URL="postgresql://[user]:[password]@[neon-hostname].[region].aws.neon.tech/[dbname]?sslmode=require"
+   ```
+4. Push database schema or run migrations:
+   ```sh
+   npm run db:push
+   # or for production migrations:
+   npm run db:migrate
+   ```
+5. Seed initial system categories (optional):
+   ```sh
+   npm run db:seed
+   ```
+
+### Database Scripts
+
+| Command | Description |
+| ------- | ----------- |
+| `npm run db:generate` | Generate the Prisma Client |
+| `npm run db:push` | Push schema directly to Neon database |
+| `npm run db:migrate` | Deploy pending migrations |
+| `npm run db:studio` | Launch Prisma Studio web visualizer |
+| `npm run db:seed` | Seed default system categories |
+
+### Vercel Deployment
+
+In Vercel:
+1. Navigate to **Project Settings** → **Environment Variables**.
+2. Add `DATABASE_URL` with your Neon **pooled** connection string for Production, Preview, and Development.
+3. Add `DIRECT_URL` with your Neon **direct** connection string.
+4. Note: `DATABASE_URL` is **server-only** and must never be exposed with a `NEXT_PUBLIC_` prefix or imported into Client Components.
+
 ## Run
 
 ```sh

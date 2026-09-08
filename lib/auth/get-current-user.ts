@@ -20,38 +20,69 @@ export async function getCurrentUser() {
  * authenticated Clerk user. Creates the record on first login if it doesn't exist.
  */
 export async function getOrCreateCurrentUser(): Promise<User | null> {
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes("USER:PASSWORD")) {
+    return null;
+  }
+
   const clerkUser = await getCurrentUser();
-  if (!clerkUser) return null;
 
-  if (!process.env.DATABASE_URL) {
-    return null;
-  }
-
-  try {
-    let user = await prisma.user.findUnique({
-      where: { clerkId: clerkUser.id },
-    });
-
-    if (!user) {
-      const email = clerkUser.emailAddresses[0]?.emailAddress ?? null;
-      user = await prisma.user.create({
-        data: {
-          clerkId: clerkUser.id,
-          email,
-          firstName: clerkUser.firstName,
-          lastName: clerkUser.lastName,
-          imageUrl: clerkUser.imageUrl,
-          currency: "INR",
-          timezone: "Asia/Kolkata",
-        },
+  // If a Clerk user is authenticated, use their account
+  if (clerkUser) {
+    try {
+      let user = await prisma.user.findUnique({
+        where: { clerkId: clerkUser.id },
       });
-    }
 
-    return user;
-  } catch (err) {
-    console.error("Error in getOrCreateCurrentUser:", err);
-    return null;
+      if (!user) {
+        const email = clerkUser.emailAddresses[0]?.emailAddress ?? null;
+        user = await prisma.user.create({
+          data: {
+            clerkId: clerkUser.id,
+            email,
+            firstName: clerkUser.firstName,
+            lastName: clerkUser.lastName,
+            imageUrl: clerkUser.imageUrl,
+            currency: "INR",
+            timezone: "Asia/Kolkata",
+          },
+        });
+      }
+
+      return user;
+    } catch (err) {
+      console.error("Error in getOrCreateCurrentUser:", err);
+      return null;
+    }
   }
+
+  // Development fallback: when running locally without active Clerk login, persist under dev_local_user
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      let devUser = await prisma.user.findUnique({
+        where: { clerkId: "dev_local_user" },
+      });
+
+      if (!devUser) {
+        devUser = await prisma.user.create({
+          data: {
+            clerkId: "dev_local_user",
+            email: "dev@finora.local",
+            firstName: "Rimanshu",
+            lastName: "Singh",
+            currency: "INR",
+            timezone: "Asia/Kolkata",
+          },
+        });
+      }
+
+      return devUser;
+    } catch (err) {
+      console.error("Error accessing dev user in Neon:", err);
+      return null;
+    }
+  }
+
+  return null;
 }
 
 /**

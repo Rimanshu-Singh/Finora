@@ -8,6 +8,14 @@ import { serializeExpense } from "@/lib/db/queries/expenses";
 import { captureServerEvent } from "@/lib/analytics/posthog-server";
 import type { Expense, PaymentMethod } from "@/lib/types";
 
+function safeRevalidate(path: string) {
+  try {
+    revalidatePath(path);
+  } catch {
+    // Non-fatal if invoked outside Next.js request context (e.g. testing)
+  }
+}
+
 export interface ExpenseInput {
   amount: number;
   categoryId: string;
@@ -34,10 +42,19 @@ export async function createExpenseAction(
       return { success: false, error: "Invalid amount." };
     }
 
+    // Ensure category exists in Neon, fallback to "other" if missing
+    let categoryId = input.categoryId?.trim().toLowerCase().replaceAll(" ", "-") || "other";
+    const categoryExists = await prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+    if (!categoryExists) {
+      categoryId = "other";
+    }
+
     const created = await prisma.expense.create({
       data: {
         userId: user.id,
-        categoryId: input.categoryId || "other",
+        categoryId,
         amount: new Prisma.Decimal(input.amount.toFixed(2)),
         merchant: input.merchant.trim() || "Expense",
         description: input.description?.trim() || input.merchant.trim() || "Expense",
@@ -52,6 +69,15 @@ export async function createExpenseAction(
       },
     });
 
+    // Verification: Read newly inserted record back from Neon PostgreSQL
+    const verified = await prisma.expense.findUnique({
+      where: { id: created.id },
+    });
+
+    if (!verified) {
+      throw new Error("Verification failed: Record could not be read back from Neon after insertion.");
+    }
+
     // Track privacy-safe server event (NO amounts, merchants, or notes)
     await captureServerEvent(user.id, "expense_created", {
       payment_method_present: !!input.paymentMethod,
@@ -61,17 +87,18 @@ export async function createExpenseAction(
       has_location: !!input.location,
       is_split: (input.split || 1) > 1,
       used_quick_entry: usedQuickEntry,
-      category: input.categoryId,
+      category: categoryId,
     });
 
-    revalidatePath("/");
-    revalidatePath("/transactions");
-    revalidatePath("/budgets");
-    revalidatePath("/analytics");
+    safeRevalidate("/");
+    safeRevalidate("/dashboard");
+    safeRevalidate("/transactions");
+    safeRevalidate("/budgets");
+    safeRevalidate("/analytics");
 
-    return { success: true, data: serializeExpense(created) };
+    return { success: true, data: serializeExpense(verified) };
   } catch (err) {
-    console.error("Error creating expense:", err);
+    console.error("Error creating expense in Neon:", err);
     return { success: false, error: "Could not create expense. Please try again." };
   }
 }
@@ -112,10 +139,11 @@ export async function updateExpenseAction(
       has_note: !!input.note,
     });
 
-    revalidatePath("/");
-    revalidatePath("/transactions");
-    revalidatePath("/budgets");
-    revalidatePath("/analytics");
+    safeRevalidate("/");
+    safeRevalidate("/dashboard");
+    safeRevalidate("/transactions");
+    safeRevalidate("/budgets");
+    safeRevalidate("/analytics");
 
     return { success: true, data: serializeExpense(updated) };
   } catch (err) {
@@ -140,10 +168,11 @@ export async function deleteExpenseAction(
 
     await captureServerEvent(user.id, "expense_deleted");
 
-    revalidatePath("/");
-    revalidatePath("/transactions");
-    revalidatePath("/budgets");
-    revalidatePath("/analytics");
+    safeRevalidate("/");
+    safeRevalidate("/dashboard");
+    safeRevalidate("/transactions");
+    safeRevalidate("/budgets");
+    safeRevalidate("/analytics");
 
     return { success: true };
   } catch (err) {

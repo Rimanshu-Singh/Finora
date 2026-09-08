@@ -5,6 +5,7 @@ import { useLedger } from "./provider";
 import { PageHeader, CategoryIcon, MoneyAmount, Modal } from "./ui";
 import { BudgetEditor } from "./budgets";
 import { sum, MONTH } from "@/lib/format";
+import { saveCategoryAction } from "@/lib/db/mutations/categories";
 import type { Category } from "@/lib/types";
 export function CategoriesPage() {
   const { data, setData, notify } = useLedger();
@@ -93,7 +94,7 @@ export function CategoriesPage() {
         >
           <form
             className="standard-form"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
               const f = new FormData(e.currentTarget);
               const name = String(f.get("name")).trim();
@@ -138,6 +139,16 @@ export function CategoriesPage() {
               }));
               notify("Category saved");
               setEdit(undefined);
+
+              try {
+                await saveCategoryAction(item.id, {
+                  name: item.name,
+                  icon: item.icon,
+                  parentId: item.parentId,
+                });
+              } catch (err) {
+                console.error("Failed to persist category:", err);
+              }
             }}
           >
             <label>

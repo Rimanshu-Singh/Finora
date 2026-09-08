@@ -25,7 +25,10 @@ const fallbackCategories = [
 }));
 
 export async function getCategories(): Promise<Category[]> {
-  if (!process.env.DATABASE_URL) {
+  if (
+    !process.env.DATABASE_URL ||
+    process.env.DATABASE_URL.includes("USER:PASSWORD")
+  ) {
     return fallbackCategories;
   }
   try {

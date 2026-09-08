@@ -11,6 +11,11 @@ import {
   ConfirmDialog,
 } from "./ui";
 import { paymentMethods } from "./expense-form";
+import {
+  saveRecurringExpenseAction,
+  toggleRecurringExpenseAction,
+  deleteRecurringExpenseAction,
+} from "@/lib/db/mutations/recurring";
 import type { RecurringExpense, PaymentMethod } from "@/lib/types";
 export function RecurringPage() {
   const { data, setData, notify } = useLedger();
@@ -85,11 +90,12 @@ export function RecurringPage() {
                 <button
                   className="icon-button"
                   aria-label={`${r.active ? "Pause" : "Resume"} ${r.name}`}
-                  onClick={() => {
+                  onClick={async () => {
+                    const nextActive = !r.active;
                     setData((d) => ({
                       ...d,
                       recurring: d.recurring.map((x) =>
-                        x.id === r.id ? { ...x, active: !x.active } : x,
+                        x.id === r.id ? { ...x, active: nextActive } : x,
                       ),
                     }));
                     notify(
@@ -97,6 +103,11 @@ export function RecurringPage() {
                         ? "Recurring payment paused"
                         : "Recurring payment resumed",
                     );
+                    try {
+                      await toggleRecurringExpenseAction(r.id, nextActive);
+                    } catch (err) {
+                      console.error("Failed to toggle recurring expense:", err);
+                    }
                   }}
                 >
                   {r.active ? <Pause size={16} /> : <Play size={16} />}
@@ -140,11 +151,12 @@ export function RecurringPage() {
         >
           <form
             className="standard-form"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
               const f = new FormData(e.currentTarget);
+              const tempId = edit?.id ?? `rec-${crypto.randomUUID()}`;
               const item: RecurringExpense = {
-                id: edit?.id ?? crypto.randomUUID(),
+                id: tempId,
                 name: String(f.get("name")).trim(),
                 amount: Number(f.get("amount")),
                 categoryId: String(f.get("category")),
@@ -163,6 +175,32 @@ export function RecurringPage() {
               }));
               notify("Recurring expense saved");
               setEdit(undefined);
+
+              try {
+                const res = await saveRecurringExpenseAction({
+                  id: edit?.id,
+                  name: item.name,
+                  amount: item.amount,
+                  categoryId: item.categoryId,
+                  frequency: item.frequency,
+                  nextDate: item.nextDate,
+                  paymentMethod: item.paymentMethod,
+                  active: item.active,
+                });
+                if (res.data) {
+                  setData((d) => ({
+                    ...d,
+                    recurring: [
+                      ...d.recurring.filter(
+                        (r) => r.id !== tempId && r.id !== res.data!.id,
+                      ),
+                      res.data!,
+                    ],
+                  }));
+                }
+              } catch (err) {
+                console.error("Failed to persist recurring expense:", err);
+              }
             }}
           >
             <label>
@@ -258,13 +296,19 @@ export function RecurringPage() {
           title="Delete recurring expense?"
           description="This removes the schedule. Your recorded expenses will remain."
           onClose={() => setRemove(undefined)}
-          onConfirm={() => {
+          onConfirm={async () => {
+            const targetId = remove;
             setData((d) => ({
               ...d,
-              recurring: d.recurring.filter((r) => r.id !== remove),
+              recurring: d.recurring.filter((r) => r.id !== targetId),
             }));
             setRemove(undefined);
             notify("Recurring expense deleted");
+            try {
+              await deleteRecurringExpenseAction(targetId);
+            } catch (err) {
+              console.error("Failed to delete recurring expense:", err);
+            }
           }}
         />
       )}
