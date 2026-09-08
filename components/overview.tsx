@@ -28,13 +28,15 @@ export function Overview() {
   const [period, setPeriod] = useState<Period>(data.settings.period);
   const monthly = data.expenses.filter((e) => e.date.startsWith(MONTH));
   const total = sum(monthly);
-  const limit = data.budgets.find((b) => !b.categoryId)?.limit ?? 30000;
+  const overallBudget = data.budgets.find((b) => !b.categoryId && b.period === MONTH);
+  const limit = overallBudget?.limit ?? (data.budgets.find((b) => !b.categoryId)?.limit ?? 0);
   const spent = sum(data.expenses.filter((e) => inPeriod(e, period)));
   const yesterday = sum(data.expenses.filter((e) => e.date === YESTERDAY));
   const today = sum(data.expenses.filter((e) => e.date === TODAY));
   const recent = [...data.expenses]
     .sort((a, b) => `${b.date}${b.time}`.localeCompare(`${a.date}${a.time}`))
     .slice(0, 5);
+  const currentMonthName = new Date().toLocaleString("en-US", { month: "long" }).toUpperCase();
   return (
     <>
       <header className="overview-header">
@@ -51,7 +53,7 @@ export function Overview() {
         />
         <div className="month-summary">
           <div className="section-top">
-            <span className="eyebrow">SEPTEMBER AT A GLANCE</span>
+            <span className="eyebrow">{currentMonthName} AT A GLANCE</span>
             <CalendarDays size={16} />
           </div>
           <span className="month-amount">
@@ -60,19 +62,27 @@ export function Overview() {
           </span>
           <div className="budget-caption">
             <span>Monthly budget</span>
-            <MoneyAmount amount={limit} />
+            {limit > 0 ? <MoneyAmount amount={limit} /> : <span>No budget set</span>}
           </div>
-          <BudgetProgress spent={total} limit={limit} />
+          <BudgetProgress spent={total} limit={limit || Math.max(total, 1)} />
           <div className="budget-caption">
-            <span>{Math.round((total / limit) * 100)}% used</span>
+            <span>{limit > 0 ? `${Math.round((total / limit) * 100)}% used` : "No limit set"}</span>
             <span>
-              <MoneyAmount amount={Math.max(0, limit - total)} /> left
+              {limit > 0 ? (
+                <>
+                  <MoneyAmount amount={Math.max(0, limit - total)} /> left
+                </>
+              ) : (
+                "Review in budgets"
+              )}
             </span>
           </div>
           <Link className="budget-link" href="/budgets">
-            {total <= limit
-              ? "A little room to breathe."
-              : "Time to review your budget."}
+            {limit === 0
+              ? "Set a monthly budget."
+              : total <= limit
+                ? "A little room to breathe."
+                : "Time to review your budget."}
             <ArrowUpRight size={15} />
           </Link>
         </div>
@@ -92,7 +102,11 @@ export function Overview() {
           {recent.length ? (
             <TransactionList expenses={recent} />
           ) : (
-            <EmptyState action={<AddButton />} />
+            <EmptyState
+              title="No expenses yet"
+              description="Add your first expense to see your everyday take shape."
+              action={<AddButton />}
+            />
           )}
         </section>
         <section className="categories-section">

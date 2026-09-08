@@ -55,33 +55,6 @@ export async function getOrCreateCurrentUser(): Promise<User | null> {
     }
   }
 
-  // Development fallback: when running locally without active Clerk login, persist under dev_local_user
-  if (process.env.NODE_ENV !== "production") {
-    try {
-      let devUser = await prisma.user.findUnique({
-        where: { clerkId: "dev_local_user" },
-      });
-
-      if (!devUser) {
-        devUser = await prisma.user.create({
-          data: {
-            clerkId: "dev_local_user",
-            email: "dev@finora.local",
-            firstName: "Rimanshu",
-            lastName: "Singh",
-            currency: "INR",
-            timezone: "Asia/Kolkata",
-          },
-        });
-      }
-
-      return devUser;
-    } catch (err) {
-      console.error("Error accessing dev user in Neon:", err);
-      return null;
-    }
-  }
-
   return null;
 }
 

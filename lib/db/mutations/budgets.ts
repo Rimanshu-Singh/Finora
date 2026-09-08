@@ -3,9 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
-import { requireCurrentUser } from "@/lib/auth/get-current-user";
+import { getOrCreateCurrentUser } from "@/lib/auth/get-current-user";
 import { captureServerEvent } from "@/lib/analytics/posthog-server";
 import type { Budget } from "@/lib/types";
+
+function safeRevalidate(path: string) {
+  try {
+    revalidatePath(path);
+  } catch {}
+}
 
 export interface BudgetInput {
   id?: string;
@@ -19,7 +25,10 @@ export async function saveBudgetAction(
   input: BudgetInput,
 ): Promise<{ success: boolean; data?: Budget; error?: string }> {
   try {
-    const user = await requireCurrentUser();
+    const user = await getOrCreateCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please sign in." };
+    }
 
     if (!Number.isFinite(input.limit) || input.limit < 0) {
       return { success: false, error: "Invalid budget limit." };
@@ -57,8 +66,9 @@ export async function saveBudgetAction(
       is_overall: !input.categoryId,
     });
 
-    revalidatePath("/budgets");
-    revalidatePath("/");
+    safeRevalidate("/budgets");
+    safeRevalidate("/");
+    safeRevalidate("/dashboard");
 
     return {
       success: true,
@@ -81,7 +91,10 @@ export async function deleteBudgetAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const user = await requireCurrentUser();
+    const user = await getOrCreateCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please sign in." };
+    }
 
     await prisma.budget.delete({
       where: {
@@ -92,8 +105,9 @@ export async function deleteBudgetAction(
 
     await captureServerEvent(user.id, "budget_deleted");
 
-    revalidatePath("/budgets");
-    revalidatePath("/");
+    safeRevalidate("/budgets");
+    safeRevalidate("/");
+    safeRevalidate("/dashboard");
 
     return { success: true };
   } catch (err) {

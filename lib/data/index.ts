@@ -1,17 +1,30 @@
-import { mockTransactions } from "@/data/mock/transactions";
-import { mockCategories } from "@/data/mock/categories";
-import { mockBudgets } from "@/data/mock/budgets";
-import { mockRecurring } from "@/data/mock/recurring";
-import { mockSettings } from "@/data/mock/settings";
-import { mockAnalytics } from "@/data/mock/analytics";
-export const getTransactions = () => structuredClone(mockTransactions);
-export const getBudgets = () => structuredClone(mockBudgets);
-export const getAnalytics = () => structuredClone(mockAnalytics);
-export const getLedgerData = () => ({
-  expenses: getTransactions(),
-  categories: structuredClone(mockCategories),
-  budgets: getBudgets(),
-  recurring: structuredClone(mockRecurring),
-  settings: structuredClone(mockSettings),
+import type { FinoraData } from "@/lib/types";
+
+export const getTransactions = () => [];
+export const getBudgets = () => [];
+export const getAnalytics = () => ({
+  totalSpent: 0,
+  transactionCount: 0,
+  averageTransaction: 0,
 });
+
+export const getLedgerData = (): FinoraData => ({
+  expenses: [],
+  categories: [],
+  budgets: [],
+  recurring: [],
+  settings: {
+    name: "You",
+    currency: "INR",
+    locale: "en-IN",
+    weekStarts: "Monday",
+    period: "Month",
+    startScreen: "overview",
+    theme: "Dark",
+    paymentMethod: "UPI",
+    suggestions: true,
+    askNote: false,
+  },
+});
+
 export const getFinoraData = getLedgerData;

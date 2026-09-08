@@ -9,27 +9,33 @@ import {
 import { useLedger } from "./provider";
 import { PageHeader, PeriodSelector, MoneyAmount } from "./ui";
 import { AnalyticsChart, CategoryBreakdown, DailyBars } from "./charts";
-import { sum, inPeriod } from "@/lib/format";
+import { sum, inPeriod, TODAY, MONTH } from "@/lib/format";
 import type { Period } from "@/lib/types";
 export function AnalyticsPage() {
   const { data } = useLedger();
   const [period, setPeriod] = useState<Period | "3 Months">("Month");
+
+  const d90 = new Date(`${TODAY}T12:00:00`);
+  d90.setDate(d90.getDate() - 90);
+  const threeMonthsAgo = d90.toISOString().slice(0, 10);
+
+  const prevMonthDate = new Date(`${TODAY}T12:00:00`);
+  prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+  const prevMonthPrefix = prevMonthDate.toISOString().slice(0, 7);
+
   const expenses = data.expenses.filter((e) =>
     period === "3 Months"
-      ? e.date >= "2026-07-01" && e.date <= "2026-09-07"
+      ? e.date >= threeMonthsAgo && e.date <= TODAY
       : inPeriod(e, period),
   );
-  const total = sum(expenses),
-    previous = sum(
-      data.expenses.filter(
-        (e) => e.date >= "2026-08-01" && e.date <= "2026-08-07",
-      ),
-    );
-  const monthToDate = sum(
-    data.expenses.filter(
-      (e) => e.date >= "2026-09-01" && e.date <= "2026-09-07",
-    ),
+  const total = sum(expenses);
+  const previous = sum(
+    data.expenses.filter((e) => e.date.startsWith(prevMonthPrefix)),
   );
+  const monthToDate = sum(
+    data.expenses.filter((e) => e.date.startsWith(MONTH) && e.date <= TODAY),
+  );
+  const currentMonthName = new Date().toLocaleString("en-US", { month: "long" }).toUpperCase();
   const daily = Object.entries(Object.groupBy(expenses, (e) => e.date))
     .map(([date, items]) => ({ date, total: sum(items ?? []) }))
     .sort((a, b) => b.total - a.total);
@@ -62,7 +68,7 @@ export function AnalyticsPage() {
       <section className="analytics-hero">
         <div>
           <span className="eyebrow">
-            {period === "Month" ? "SEPTEMBER" : `THIS ${period.toUpperCase()}`}
+            {period === "Month" ? currentMonthName : `THIS ${period.toUpperCase()}`}
           </span>
           <MoneyAmount amount={total} className="analytics-amount" />
           <p>
@@ -80,7 +86,7 @@ export function AnalyticsPage() {
               ? `${Math.round(Math.abs(monthToDate / previous - 1) * 100)}% ${monthToDate > previous ? "more" : "less"}`
               : "No prior spending"}
           </strong>
-          <span>September 1–7 vs August 1–7</span>
+          <span>This month vs last month</span>
         </div>
       </section>
       <section className="trend-section">

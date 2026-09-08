@@ -26,8 +26,8 @@ export function CategoriesPage() {
       />
       <div className="section-heading">
         <span className="muted small">
-          {data.categories.filter((c) => !c.archived).length} categories ·
-          September spending
+          {data.categories.filter((c) => !c.archived).length} categories ·{" "}
+          {new Date().toLocaleString("en-US", { month: "long" })} spending
         </span>
         <label className="check-label small">
           <input

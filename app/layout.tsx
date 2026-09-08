@@ -5,6 +5,8 @@ import { AppShell } from "@/components/app-shell";
 import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import { getUserLedgerData } from "@/lib/data/user-ledger";
 import "./globals.css";
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: {
     default: "Finora — Your everyday, understood",

@@ -3,9 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
-import { requireCurrentUser } from "@/lib/auth/get-current-user";
+import { getOrCreateCurrentUser } from "@/lib/auth/get-current-user";
 import { serializeRecurringExpense } from "@/lib/db/queries/recurring";
 import type { RecurringExpense, PaymentMethod } from "@/lib/types";
+
+function safeRevalidate(path: string) {
+  try {
+    revalidatePath(path);
+  } catch {}
+}
 
 export interface RecurringExpenseInput {
   id?: string;
@@ -22,7 +28,10 @@ export async function saveRecurringExpenseAction(
   input: RecurringExpenseInput,
 ): Promise<{ success: boolean; data?: RecurringExpense; error?: string }> {
   try {
-    const user = await requireCurrentUser();
+    const user = await getOrCreateCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please sign in." };
+    }
 
     if (!input.name?.trim()) {
       return { success: false, error: "Name is required." };
@@ -68,8 +77,9 @@ export async function saveRecurringExpenseAction(
       });
     }
 
-    revalidatePath("/recurring");
-    revalidatePath("/");
+    safeRevalidate("/recurring");
+    safeRevalidate("/");
+    safeRevalidate("/dashboard");
 
     return { success: true, data: serializeRecurringExpense(recurring) };
   } catch (err) {
@@ -83,15 +93,19 @@ export async function toggleRecurringExpenseAction(
   active: boolean,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const user = await requireCurrentUser();
+    const user = await getOrCreateCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please sign in." };
+    }
 
     await prisma.recurringExpense.update({
       where: { id, userId: user.id },
       data: { active },
     });
 
-    revalidatePath("/recurring");
-    revalidatePath("/");
+    safeRevalidate("/recurring");
+    safeRevalidate("/");
+    safeRevalidate("/dashboard");
 
     return { success: true };
   } catch (err) {
@@ -104,14 +118,18 @@ export async function deleteRecurringExpenseAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const user = await requireCurrentUser();
+    const user = await getOrCreateCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please sign in." };
+    }
 
     await prisma.recurringExpense.delete({
       where: { id, userId: user.id },
     });
 
-    revalidatePath("/recurring");
-    revalidatePath("/");
+    safeRevalidate("/recurring");
+    safeRevalidate("/");
+    safeRevalidate("/dashboard");
 
     return { success: true };
   } catch (err) {

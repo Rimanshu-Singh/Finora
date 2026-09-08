@@ -7,7 +7,7 @@ import { TransactionList } from "./transactions";
 import { sum, TODAY } from "@/lib/format";
 export function CalendarPage() {
   const { data } = useLedger();
-  const [month, setMonth] = useState(new Date("2026-09-01T12:00:00")),
+  const [month, setMonth] = useState(new Date(`${TODAY}T12:00:00`)),
     [selected, setSelected] = useState(TODAY);
   const year = month.getFullYear(),
     m = month.getMonth();
@@ -47,7 +47,7 @@ export function CalendarPage() {
               <button
                 className="text-button"
                 onClick={() => {
-                  setMonth(new Date("2026-09-01T12:00:00"));
+                  setMonth(new Date(`${TODAY}T12:00:00`));
                   setSelected(TODAY);
                 }}
               >

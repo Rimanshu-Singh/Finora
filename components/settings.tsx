@@ -195,7 +195,7 @@ export function SettingsPage() {
           </div>
         </section>
         <p className="footnote">
-          Demo workspace · Changes last until you refresh.
+          Connected workspace · Data securely stored in Neon PostgreSQL.
         </p>
       </div>
       {preview && (

@@ -2,8 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
-import { requireCurrentUser } from "@/lib/auth/get-current-user";
+import { getOrCreateCurrentUser } from "@/lib/auth/get-current-user";
 import type { Category } from "@/lib/types";
+
+function safeRevalidate(path: string) {
+  try {
+    revalidatePath(path);
+  } catch {}
+}
 
 export interface CategoryInput {
   name: string;
@@ -16,7 +22,10 @@ export async function saveCategoryAction(
   input: CategoryInput,
 ): Promise<{ success: boolean; data?: Category; error?: string }> {
   try {
-    await requireCurrentUser();
+    const user = await getOrCreateCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please sign in." };
+    }
 
     const name = input.name.trim();
     if (!name) {
@@ -41,8 +50,9 @@ export async function saveCategoryAction(
       },
     });
 
-    revalidatePath("/categories");
-    revalidatePath("/");
+    safeRevalidate("/categories");
+    safeRevalidate("/");
+    safeRevalidate("/dashboard");
 
     return {
       success: true,

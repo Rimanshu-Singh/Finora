@@ -131,7 +131,8 @@ export function BudgetsPage() {
   const monthly = data.expenses.filter((e) => e.date.startsWith(MONTH));
   const overall = data.budgets.find((b) => !b.categoryId && b.period === MONTH);
   const total = sum(monthly),
-    limit = overall?.limit ?? 30000;
+    limit = overall?.limit ?? (data.budgets.find((b) => !b.categoryId)?.limit ?? 0);
+  const currentMonthName = new Date().toLocaleString("en-US", { month: "long" }).toUpperCase();
   return (
     <>
       <PageHeader
@@ -146,7 +147,7 @@ export function BudgetsPage() {
       />
       <section className="budget-overview">
         <div className="section-heading">
-          <span className="eyebrow">SEPTEMBER MONTHLY BUDGET</span>
+          <span className="eyebrow">{currentMonthName} MONTHLY BUDGET</span>
           <button
             className="text-button"
             onClick={() => setEdit(overall ?? null)}

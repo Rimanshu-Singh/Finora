@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
-import { requireCurrentUser } from "@/lib/auth/get-current-user";
+import { getOrCreateCurrentUser, requireCurrentUser } from "@/lib/auth/get-current-user";
 import { serializeExpense } from "@/lib/db/queries/expenses";
 import { captureServerEvent } from "@/lib/analytics/posthog-server";
 import type { Expense, PaymentMethod } from "@/lib/types";
@@ -36,7 +36,10 @@ export async function createExpenseAction(
   usedQuickEntry: boolean = false,
 ): Promise<{ success: boolean; data?: Expense; error?: string }> {
   try {
-    const user = await requireCurrentUser();
+    const user = await getOrCreateCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please sign in." };
+    }
 
     if (!Number.isFinite(input.amount) || input.amount < 0.01 || input.amount > 100000000) {
       return { success: false, error: "Invalid amount." };
@@ -108,7 +111,10 @@ export async function updateExpenseAction(
   input: Partial<ExpenseInput>,
 ): Promise<{ success: boolean; data?: Expense; error?: string }> {
   try {
-    const user = await requireCurrentUser();
+    const user = await getOrCreateCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please sign in." };
+    }
 
     // Verify ownership in the update query
     const updated = await prisma.expense.update({
@@ -156,7 +162,10 @@ export async function deleteExpenseAction(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const user = await requireCurrentUser();
+    const user = await getOrCreateCurrentUser();
+    if (!user) {
+      return { success: false, error: "Unauthorized. Please sign in." };
+    }
 
     // Verify ownership in the delete query
     await prisma.expense.delete({

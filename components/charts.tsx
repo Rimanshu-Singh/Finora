@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useLedger } from "./provider";
 import { MoneyAmount, CategoryIcon, EmptyState } from "./ui";
-import { sum, money } from "@/lib/format";
+import { sum, money, TODAY } from "@/lib/format";
 import type { Expense } from "@/lib/types";
 export function AnalyticsChart({
   expenses,
@@ -13,7 +13,7 @@ export function AnalyticsChart({
 }) {
   const [hover, setHover] = useState<number | null>(null);
   const dates = Array.from({ length: days }, (_, i) => {
-    const d = new Date("2026-09-07T12:00:00");
+    const d = new Date(`${TODAY}T12:00:00`);
     d.setDate(d.getDate() - (days - 1 - i));
     return d.toISOString().slice(0, 10);
   });

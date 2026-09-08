@@ -21,7 +21,7 @@ import {
   Modal,
   ConfirmDialog,
 } from "./ui";
-import { dateLabel, sum, inPeriod } from "@/lib/format";
+import { dateLabel, sum, inPeriod, TODAY } from "@/lib/format";
 import { deleteExpenseAction, createExpenseAction } from "@/lib/db/mutations/expenses";
 import type { Expense, Period } from "@/lib/types";
 import { paymentMethods } from "./expense-form";
@@ -41,7 +41,7 @@ export function TransactionRow({
         <strong>{expense.merchant}</strong>
         <small>
           {c?.name ?? "Other"} <span>·</span> {dateLabel(expense.date)}
-          {expense.date === "2026-09-07" &&
+          {expense.date === TODAY &&
             `, ${new Date(`2000-01-01T${expense.time}`).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}`}
         </small>
       </span>
@@ -255,7 +255,7 @@ export function TransactionDetailPage({ id }: { id: string }) {
       ) : (
         <EmptyState
           title="Expense not found."
-          description="It may have been deleted, or belonged to a previous demo session."
+          description="This expense may have been deleted or does not exist."
         />
       )}
     </div>
@@ -449,6 +449,12 @@ export function TransactionsPage() {
             <TransactionList expenses={expenses ?? []} />
           </section>
         ))
+      ) : data.expenses.length === 0 ? (
+        <EmptyState
+          title="No expenses yet"
+          description="Add your first expense to begin tracking your spending."
+          action={<AddButton />}
+        />
       ) : (
         <EmptyState
           title="No matching expenses."
